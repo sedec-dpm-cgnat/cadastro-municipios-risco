@@ -127,14 +127,14 @@ A ficha pública deve apresentar:
 
 ### Mapa
 
-O mapa nacional terá três camadas principais:
+O mapa nacional terá três camadas principais, com a geometria do Brasil em baixo contraste para deixar a leitura dos municípios no centro:
 
 - azul: municípios indicados;
 - dourado: processos em preenchimento ou em análise;
 - verde/teal: municípios cadastrados;
 - vermelho discreto: cadastro devolvido ou com pendência crítica.
 
-Ao clicar em um município, o mapa abre um cartão com nome, UF, código IBGE, situação, data da última atualização e link para a ficha pública. O visitante poderá destacar apenas indicados, cadastrados ou processos em preenchimento. A proposta mantém a possibilidade de integrar camadas do SGB, CEMADEN, ANA, IBGE e bases municipais.
+Ao clicar em um município, o mapa abre um cartão com nome, UF, código IBGE, situação, data da última atualização e link para a ficha pública. O visitante poderá destacar apenas indicados, cadastrados ou processos em preenchimento. No protótipo, a hachura e a densidade dos pontos representam visualmente o universo de 2.095 indicados; na integração, cada ponto será alimentado pelo código IBGE e pela coordenada da lista oficial. A proposta mantém a possibilidade de integrar camadas do SGB, CEMADEN, ANA, IBGE e bases municipais.
 
 ### Evolução da metodologia de indicação
 

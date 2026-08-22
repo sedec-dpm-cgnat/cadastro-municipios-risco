@@ -338,12 +338,13 @@ document.querySelectorAll('[data-transparency-filter]').forEach(button => button
 
 function setPublicMapFilter(filter) {
   document.querySelectorAll('[data-public-map-filter]').forEach(button => button.classList.toggle('active', button.dataset.publicMapFilter === filter));
-  const points = [...document.querySelectorAll('.public-map-point')];
+  const mapCanvas = document.querySelector('.public-map-canvas');
+  if (mapCanvas) mapCanvas.dataset.mapFilter = filter;
+  const points = [...document.querySelectorAll('.public-map-canvas .public-map-point')];
   points.forEach(point => point.classList.toggle('is-dimmed', filter !== 'all' && point.dataset.mapCategory !== filter));
-  const visibleCount = filter === 'all' ? points.length : points.filter(point => point.dataset.mapCategory === filter).length;
-  const label = { all: 'municípios no recorte', indicated: 'indicados no recorte', registered: 'cadastrados no recorte', 'in-progress': 'processos no recorte' }[filter] || 'municípios no recorte';
+  const labels = { all: '2.095 indicados · 5 cadastrados', indicated: '2.095 indicados', registered: '5 cadastrados', 'in-progress': 'processos em preenchimento' };
   const counter = document.querySelector('#map-counter');
-  if (counter) counter.textContent = `${visibleCount} ${label}`;
+  if (counter) counter.textContent = labels[filter] || labels.all;
 }
 
 document.querySelectorAll('[data-public-map-filter]').forEach(button => button.addEventListener('click', () => {
@@ -351,6 +352,207 @@ document.querySelectorAll('[data-public-map-filter]').forEach(button => button.a
   const labels = { all: 'Visão geral', indicated: 'Indicados', registered: 'Cadastrados', 'in-progress': 'Em preenchimento' };
   showToast(`${labels[button.dataset.publicMapFilter]} destacados no mapa.`);
 }));
+
+function createMapSvgElement(tagName, attributes = {}) {
+  const element = document.createElementNS('http://www.w3.org/2000/svg', tagName);
+  Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, value));
+  return element;
+}
+
+function createMapLabel(svg, value, caption) {
+  const label = createMapSvgElement('g', { class: 'map-coverage-label' });
+  label.append(
+    createMapSvgElement('rect', { x: 25, y: 23, width: 164, height: 57, rx: 9 }),
+    createMapSvgElement('text', { x: 40, y: 49, class: 'map-coverage-value' })
+  );
+  label.querySelector('.map-coverage-value').textContent = value;
+  const captionText = createMapSvgElement('text', { x: 40, y: 67, class: 'map-coverage-caption' });
+  captionText.textContent = caption;
+  label.append(captionText);
+  svg.append(label);
+}
+
+function createCoveragePattern(defs, id, tone) {
+  const pattern = createMapSvgElement('pattern', { id, width: 12, height: 12, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(8)' });
+  pattern.append(createMapSvgElement('path', { d: 'M 0 0 V 12 M 6 0 V 12', class: `coverage-hatch-line ${tone}` }));
+  defs.append(pattern);
+}
+
+const fallbackBrazilPath = 'M369.1 344L365.1 339.4L371.5 335.5L363.1 329.9L351.7 325.4L336.8 320.1L331.4 320.3L316.8 314L307.5 314.9L326.8 303.7L343.2 295.7L352.9 292.4L365.1 287.9L365.4 281.3L358.1 276.6L350.9 278.2L353.8 273.4L355.7 268.6L355.7 264.1L350.5 262.6L345.1 263.9L339.7 263.6L338 260.4L336.6 252.9L333.9 250.4L324.2 248.2L318.2 249.8L302.9 248.2L303.9 237.1L299.6 232.5L304.1 230.9L302.7 226.2L306.7 222.6L309.3 216.1L305.8 211L298 208.7L296.4 205.5L298.5 200.7L270.7 200.4L265.1 190.9L269.3 190.7L269.2 187.2L266.3 184.8L265.7 180.1L257.3 177.6L248.2 177.7L242.1 175.3L232.3 173.7L226.6 170.6L210.4 169.3L194.6 161.9L195.8 156.4L194.1 153.3L195.6 147.1L176.6 148.5L169 151.6L156.3 154.9L153 157.4L145.6 157.6L134.8 156.9L126.6 158.3L120.1 157.4L121 144.9L109.1 149.7L96.3 149.5L90.8 145.2L81.2 144.7L84.3 141.2L76.2 136.2L70.2 128.8L74 127.3L74 123.8L82.8 121.5L81.3 117L85 114.2L86.1 110.4L102.7 104.8L114.5 103.2L116.5 102L129.6 102.3L136.1 79.9L136.4 76.3L134.1 71.6L127.7 68.6L127.8 62.7L135.9 61.3L138.8 62.2L139.3 59L130.9 58.2L130.6 53L158.9 53.2L163.7 50.4L167.7 53L170.6 57.8L173.3 56.8L181.3 61.2L192.6 60.6L195.4 58.1L206.1 56.2L212.1 54.9L213.8 51.4L224.1 49.1L223.4 47.3L211.1 46.6L209.1 41.5L209.7 36L203.2 33.8L205.9 33.1L216.6 34.1L228.2 36.2L232.3 34.2L242.8 33L259 29.9L264.3 26.8L262.4 24.5L269.9 24.1L273.3 26L271.4 29.6L276.4 30.8L279.7 34.6L275.7 37.5L273.4 44.5L277.1 48.7L278.1 52.5L287 56.3L294.2 56.7L295.8 55.1L300.4 54.7L306.9 53.3L311.6 51.1L319.7 51.8L323.2 51.5L331 52.2L332.4 50.5L330 48.9L331.4 46.5L337.3 47.2L344.1 46.4L352.4 48.1L358.7 49.8L363.2 47.6L366.4 48L368.4 50.3L375.4 49.7L381 46.6L385.4 40.5L393.9 33L398.9 32.6L402.5 37.2L410.6 51.5L418.4 52.9L418.7 58.5L407.9 65.3L412.4 67.7L438 69L438.5 77.3L449.5 71.9L467.8 74.8L491.9 79.8L498.9 84.6L496.6 89.2L513.4 86.6L541.6 91L563.3 90.7L584.7 97.4L603.3 106.6L614.4 109L626.8 109.3L632.1 111.9L637 122.3L639.4 127.3L633.7 140.9L626.2 146.2L605.8 157.6L596.6 166.9L585.8 174L582.2 174.2L578.2 180.2L579.2 195.6L575.2 208.2L573.6 213.6L569 216.8L566.5 227.8L551.8 238.5L549.3 247L537.6 250.5L534.2 255.5L518.4 255.4L495.6 258.6L485.4 262.2L469.2 264.6L452.1 271.2L439.8 279.3L437.7 285.4L440.1 289.9L437.4 298.2L434.1 302.2L424 306.7L407.9 321.2L395.1 327.7L385.3 331.5L378.7 339.3L369.1 344Z';
+
+function buildFallbackBrazilCoverageMap(svg) {
+  const mapHost = svg.closest('.national-map-shell') || svg.closest('.public-map-canvas');
+  const isPublicMap = Boolean(svg.closest('.public-map-canvas'));
+  const isRegisteredMode = mapHost?.classList.contains('registered-mode');
+  const isIndicatedMode = mapHost?.classList.contains('indicated-mode');
+  const mapId = `fallback-${Math.random().toString(36).slice(2, 8)}`;
+  const defs = createMapSvgElement('defs');
+  createCoveragePattern(defs, `${mapId}-hatch`, isRegisteredMode ? 'gray' : 'blue');
+  const clip = createMapSvgElement('clipPath', { id: `${mapId}-clip` });
+  clip.append(createMapSvgElement('path', { d: fallbackBrazilPath }));
+  defs.append(clip);
+  svg.replaceChildren(defs);
+  svg.setAttribute('viewBox', '0 0 720 385');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', isRegisteredMode ? 'Mapa do Brasil com 2.095 municípios indicados em hachura cinza e cinco municípios cadastrados destacados em verde' : 'Mapa do Brasil com 2.095 municípios indicados em hachura e municípios cadastrados destacados');
+  svg.append(
+    createMapSvgElement('path', { d: fallbackBrazilPath, class: 'brazil-base' }),
+    createMapSvgElement('path', { d: fallbackBrazilPath, class: 'brazil-hatch', fill: `url(#${mapId}-hatch)` }),
+    createMapSvgElement('path', { d: fallbackBrazilPath, class: 'brazil-outline' })
+  );
+
+  const density = createMapSvgElement('g', { class: 'indicated-density', 'clip-path': `url(#${mapId}-clip)` });
+  let densitySeed = 20952025;
+  const densityRandom = () => {
+    densitySeed = (densitySeed * 1664525 + 1013904223) >>> 0;
+    return densitySeed / 4294967296;
+  };
+  for (let index = 0; index < 2095; index += 1) {
+    density.append(createMapSvgElement('circle', {
+      cx: 72 + densityRandom() * 575,
+      cy: 25 + densityRandom() * 322,
+      r: isRegisteredMode ? .95 : 1.05,
+      class: isPublicMap ? 'public-map-point indicated' : 'national-indicated-dot',
+      'data-map-category': 'indicated',
+      'aria-label': 'Município indicado'
+    }));
+  }
+  svg.append(density);
+
+  const registeredMunicipalities = [[426, 303], [514, 211], [467, 243], [637, 126], [274, 119]];
+  if (!isIndicatedMode) {
+    const registeredLayer = createMapSvgElement('g', { class: 'registered-density' });
+    registeredMunicipalities.forEach(([cx, cy], index) => {
+      const group = createMapSvgElement('g', { class: isPublicMap ? 'public-map-point registered' : 'registered-dot', 'data-map-category': 'registered' });
+      group.append(createMapSvgElement('circle', { cx, cy, r: 10, class: 'registered-halo' }), createMapSvgElement('circle', { cx, cy, r: 5.5 }), createMapSvgElement('title', {}));
+      group.querySelector('title').textContent = `Cadastro efetivado ${String(index + 1).padStart(2, '0')} · recorte demonstrativo`;
+      registeredLayer.append(group);
+    });
+    svg.append(registeredLayer);
+  }
+  if (isPublicMap) {
+    const process = createMapSvgElement('g', { class: 'public-map-point in-progress', 'data-map-category': 'in-progress' });
+    process.append(createMapSvgElement('circle', { cx: 411, cy: 233, r: 7 }), createMapSvgElement('title', {}));
+    process.querySelector('title').textContent = 'São Sebastião · SP · Processo em preenchimento · recorte demonstrativo';
+    svg.append(process);
+  }
+  createMapLabel(svg, isIndicatedMode ? '2.095' : '2.095 + 5', isIndicatedMode ? 'municípios indicados' : isRegisteredMode ? 'indicados · cadastrados' : 'indicação · cadastro');
+}
+
+function buildBrazilCoverageMap(svg, brazilFeature, indicatedLocations) {
+  const mapHost = svg.closest('.national-map-shell') || svg.closest('.public-map-canvas');
+  const isPublicMap = Boolean(svg.closest('.public-map-canvas'));
+  const isRegisteredMode = mapHost?.classList.contains('registered-mode');
+  const isIndicatedMode = mapHost?.classList.contains('indicated-mode');
+  const projection = d3.geoMercator().fitExtent([[70, 22], [650, 350]], brazilFeature);
+  const path = d3.geoPath(projection);
+  const brazilPath = path(brazilFeature);
+  if (!brazilPath) return;
+
+  const mapId = `coverage-${Math.random().toString(36).slice(2, 8)}`;
+  const defs = createMapSvgElement('defs');
+  createCoveragePattern(defs, `${mapId}-hatch`, isRegisteredMode ? 'gray' : 'blue');
+  svg.replaceChildren(defs);
+  svg.setAttribute('viewBox', '0 0 720 385');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', isRegisteredMode ? 'Mapa do Brasil com 2.095 municípios indicados em hachura cinza e cinco municípios cadastrados destacados em verde' : 'Mapa do Brasil com 2.095 municípios indicados em hachura e municípios cadastrados destacados');
+
+  const base = createMapSvgElement('path', { d: brazilPath, class: 'brazil-base' });
+  const hatch = createMapSvgElement('path', { d: brazilPath, class: 'brazil-hatch', fill: `url(#${mapId}-hatch)` });
+  const outline = createMapSvgElement('path', { d: brazilPath, class: 'brazil-outline' });
+  svg.append(base, hatch, outline);
+
+  const density = createMapSvgElement('g', { class: 'indicated-density' });
+  indicatedLocations.forEach(([longitude, latitude]) => {
+    const point = projection([longitude, latitude]);
+    if (!point) return;
+    const pointElement = createMapSvgElement('circle', {
+      cx: point[0], cy: point[1], r: isRegisteredMode ? 0.95 : 1.05,
+      class: isPublicMap ? 'public-map-point indicated' : 'national-indicated-dot',
+      'data-map-category': 'indicated',
+      'aria-label': 'Município indicado'
+    });
+    density.append(pointElement);
+  });
+  svg.append(density);
+
+  const registeredMunicipalities = [
+    ['Porto Alegre', 'RS', -51.2300, -30.0346],
+    ['Rio de Janeiro', 'RJ', -43.1729, -22.9068],
+    ['São Paulo', 'SP', -46.6333, -23.5505],
+    ['Recife', 'PE', -34.8770, -8.0476],
+    ['Manaus', 'AM', -60.0217, -3.1190]
+  ];
+  if (!isIndicatedMode) {
+    const registeredLayer = createMapSvgElement('g', { class: 'registered-density' });
+    registeredMunicipalities.forEach(([name, uf, longitude, latitude], index) => {
+      const point = projection([longitude, latitude]);
+      if (!point) return;
+      const group = createMapSvgElement('g', { class: isPublicMap ? 'public-map-point registered' : 'registered-dot', 'data-map-category': 'registered' });
+      group.append(
+        createMapSvgElement('circle', { cx: point[0], cy: point[1], r: 10, class: 'registered-halo' }),
+        createMapSvgElement('circle', { cx: point[0], cy: point[1], r: 5.5 }),
+        createMapSvgElement('title', {})
+      );
+      group.querySelector('title').textContent = `${name} · ${uf} · Cadastro efetivado ${String(index + 1).padStart(2, '0')} · recorte demonstrativo`;
+      registeredLayer.append(group);
+    });
+    svg.append(registeredLayer);
+  }
+
+  if (isPublicMap) {
+    const [longitude, latitude] = [-45.4095, -23.7950];
+    const point = projection([longitude, latitude]);
+    if (point) {
+      const process = createMapSvgElement('g', { class: 'public-map-point in-progress', 'data-map-category': 'in-progress' });
+      process.append(createMapSvgElement('circle', { cx: point[0], cy: point[1], r: 7 }), createMapSvgElement('title', {}));
+      process.querySelector('title').textContent = 'São Sebastião · SP · Processo em preenchimento · recorte demonstrativo';
+      svg.append(process);
+    }
+  }
+
+  createMapLabel(svg, isIndicatedMode ? '2.095' : isRegisteredMode ? '2.095 + 5' : '2.095 + 5', isIndicatedMode ? 'municípios indicados' : isRegisteredMode ? 'indicados · cadastrados' : 'indicação · cadastro');
+}
+
+async function renderBrazilCoverageMaps() {
+  const mapSvgs = document.querySelectorAll('.public-map-canvas svg, .national-map-shell svg');
+  if (!window.d3 || !window.topojson || typeof fetch !== 'function') {
+    mapSvgs.forEach(svg => buildFallbackBrazilCoverageMap(svg));
+    setPublicMapFilter('all');
+    return;
+  }
+  try {
+    const response = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+    if (!response.ok) throw new Error('Não foi possível carregar a geometria nacional.');
+    const world = await response.json();
+    const countries = topojson.feature(world, world.objects.countries).features;
+    const brazil = countries.find(feature => String(feature.id).padStart(3, '0') === '076');
+    if (!brazil) throw new Error('Geometria do Brasil não encontrada.');
+
+    const indicatedLocations = [];
+    let seed = 20952025;
+    const random = () => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 4294967296;
+    };
+    let attempts = 0;
+    while (indicatedLocations.length < 2095 && attempts < 40000) {
+      attempts += 1;
+      const longitude = -73.9 + random() * 39.4;
+      const latitude = -33.7 + random() * 29.8;
+      if (d3.geoContains(brazil, [longitude, latitude])) indicatedLocations.push([longitude, latitude]);
+    }
+
+    mapSvgs.forEach(svg => buildBrazilCoverageMap(svg, brazil, indicatedLocations));
+    setPublicMapFilter('all');
+  } catch (error) {
+    console.warn('Mapa nacional dinâmico indisponível; mantendo a prévia ilustrativa.', error);
+    mapSvgs.forEach(svg => buildFallbackBrazilCoverageMap(svg));
+    setPublicMapFilter('all');
+  }
+}
+
+renderBrazilCoverageMaps();
 
 function csvValue(value) {
   return `"${String(value).replace(/"/g, '""')}"`;

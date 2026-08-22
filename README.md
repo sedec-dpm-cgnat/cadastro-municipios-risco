@@ -34,6 +34,7 @@ Depois abra [http://127.0.0.1:4173](http://127.0.0.1:4173).
 - mapa esquemático com camadas de risco e integração com bases técnicas;
 - consulta pública de transparência;
 - painel público com mapa nacional demonstrativo, filtros por situação e downloads CSV separados;
+- mapa do Brasil com geometria cartográfica real, hachura do universo de 2.095 indicados e cinco pontos verdes de cadastros efetivados;
 - separação visual entre municípios indicados, cadastrados e processos em preenchimento;
 - visão nacional dos municípios indicados e da fila de notificação do Rio Grande do Sul;
 - interações simuladas, sem envio de dados reais.
