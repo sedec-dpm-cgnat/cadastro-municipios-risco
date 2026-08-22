@@ -7,7 +7,7 @@ const toast = document.querySelector('#toast');
 let currentStep = 1;
 let toastTimer;
 let transparencyFilter = 'all';
-let selectedRole = 'municipal';
+let selectedRole = null;
 
 const roleProfiles = {
   municipal: {
@@ -104,6 +104,10 @@ function showToast(message) {
 }
 
 function unlockPortal(destination = 'dashboard', message = 'Acesso gov.br simulado para esta demonstração.') {
+  if (!selectedRole) {
+    showToast('Escolha um perfil antes de continuar.');
+    return;
+  }
   document.querySelector('#auth-screen').style.display = 'none';
   document.querySelector('#app-frame').classList.add('is-unlocked');
   const profile = roleProfiles[selectedRole] || roleProfiles.municipal;
@@ -113,6 +117,19 @@ function unlockPortal(destination = 'dashboard', message = 'Acesso gov.br simula
   if (topbarKicker) topbarKicker.textContent = profile.topbar;
   if (profileName) profileName.textContent = profile.profile;
   if (profileType) profileType.textContent = profile.profileType;
+  openView(destination);
+  showToast(message);
+}
+
+function openPublicView(destination, message) {
+  document.querySelector('#auth-screen').style.display = 'none';
+  document.querySelector('#app-frame').classList.add('is-unlocked');
+  const topbarKicker = document.querySelector('.topbar-kicker');
+  const profileName = document.querySelector('.profile-text strong');
+  const profileType = document.querySelector('.profile-text small');
+  if (topbarKicker) topbarKicker.textContent = 'Consulta pública';
+  if (profileName) profileName.textContent = 'Acesso aberto';
+  if (profileType) profileType.textContent = 'Sem autenticação';
   openView(destination);
   showToast(message);
 }
@@ -148,13 +165,22 @@ document.querySelectorAll('[data-access-role]').forEach(button => button.addEven
   document.querySelector('#selected-role-note span').textContent = profile.copy;
   document.querySelector('#login-button-label').textContent = profile.login;
   document.querySelector('#auth-login-copy').textContent = profile.copy;
+  const loginButton = document.querySelector('#govbr-login');
+  loginButton.hidden = false;
+  loginButton.classList.toggle('institutional-login', selectedRole !== 'municipal');
+  loginButton.querySelector('.govbr-symbol').textContent = selectedRole === 'municipal' ? '◎' : '◈';
 }));
 
 document.querySelector('#govbr-login').addEventListener('click', () => {
   const profile = roleProfiles[selectedRole] || roleProfiles.municipal;
   unlockPortal(profile.destination, profile.toast);
 });
-document.querySelector('#public-access').addEventListener('click', () => unlockPortal('transparencia', 'Consulta pública aberta sem autenticação.'));
+document.querySelector('#public-access').addEventListener('click', () => openPublicView('transparencia', 'Consulta pública aberta sem autenticação.'));
+document.querySelectorAll('[data-entry-destination]').forEach(button => button.addEventListener('click', () => {
+  const destination = button.dataset.entryDestination;
+  const message = destination === 'indicados' ? 'Abrindo a explicação e o mapa dos municípios indicados.' : 'Abrindo o mapa das inscrições concluídas.';
+  openPublicView(destination, message);
+}));
 
 document.querySelectorAll('[data-step-nav]').forEach(button => button.addEventListener('click', () => setStep(button.dataset.stepNav)));
 document.querySelector('[data-step-next]').addEventListener('click', () => {

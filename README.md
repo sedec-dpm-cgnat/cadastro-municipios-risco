@@ -19,7 +19,10 @@ Depois abra [http://127.0.0.1:4173](http://127.0.0.1:4173).
 - painel municipal com o município de São Sebastião/SP como cenário demonstrativo;
 - tela inicial de acesso municipal com fluxo simulado de autenticação gov.br;
 - seleção de quatro perfis: município, estado, União e órgãos de controle/fiscalização;
+- login gov.br liberado somente depois da escolha do perfil municipal;
 - explicação visual da diferença entre indicação técnica, cadastro efetivado e transparência;
+- atalhos públicos na tela inicial para a explicação dos 2.095 indicados e o mapa das 5 inscrições concluídas;
+- páginas nacionais com mapa do Brasil, notas técnicas da Casa Civil e responsabilidades posteriores à inscrição;
 - fluxo de cadastro inicial em quatro etapas: identificação, comprovação, manifestação prévia e revisão;
 - upload único da comprovação de áreas de risco, com ZIP como formato preferencial;
 - atesto obrigatório para municípios indicados;
