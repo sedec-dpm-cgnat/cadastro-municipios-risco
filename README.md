@@ -2,6 +2,8 @@
 
 Protótipo navegável do painel municipal para o Cadastro Nacional de Municípios com Áreas Suscetíveis à Ocorrência de Deslizamentos de Grande Impacto, Inundações Bruscas ou Processos Geológicos ou Hidrológicos Correlatos.
 
+**Demonstração pública:** [sedec-dpm-cgnat.github.io/cadastro-municipios-risco](https://sedec-dpm-cgnat.github.io/cadastro-municipios-risco/)
+
 ## Executar localmente
 
 Na pasta do protótipo, execute:
