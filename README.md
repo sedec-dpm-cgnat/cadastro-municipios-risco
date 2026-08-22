@@ -1,0 +1,39 @@
+# CNM-RISCO · Protótipo de demonstração
+
+Protótipo navegável do painel municipal para o Cadastro Nacional de Municípios com Áreas Suscetíveis à Ocorrência de Deslizamentos de Grande Impacto, Inundações Bruscas ou Processos Geológicos ou Hidrológicos Correlatos.
+
+## Executar localmente
+
+Na pasta do protótipo, execute:
+
+```powershell
+python -m http.server 4173
+```
+
+Depois abra [http://127.0.0.1:4173](http://127.0.0.1:4173).
+
+## Escopo da demonstração
+
+- painel municipal com o município de São Sebastião/SP como cenário demonstrativo;
+- tela inicial de acesso municipal com fluxo simulado de autenticação gov.br;
+- fluxo de cadastro inicial em quatro etapas: identificação, comprovação, manifestação prévia e revisão;
+- upload único da comprovação de áreas de risco, com ZIP como formato preferencial;
+- atesto obrigatório para municípios indicados;
+- área pós-efetivação com os sete campos de acompanhamento do art. 5º;
+- mapa esquemático com camadas de risco e integração com bases técnicas;
+- consulta pública de transparência;
+- separação visual entre municípios indicados, cadastrados e processos em preenchimento;
+- visão nacional dos municípios indicados e da fila de notificação do Rio Grande do Sul;
+- interações simuladas, sem envio de dados reais.
+
+As marcas institucionais usadas no protótipo são carregadas a partir das referências públicas indicadas pelo solicitante.
+
+## Proposta completa
+
+- [Proposta do sistema](docs/PROPOSTA-SISTEMA.md)
+- [API e desenho de dados](docs/API-E-DADOS.md)
+- [Esquema MySQL](database/schema.sql)
+- [Carga de demonstração](database/seed_demo.sql)
+- [Orientações para a VPS Hostinger](deploy/README-HOSTINGER.md)
+
+O subprojeto está isolado em `C:\Users\cassi\OneDrive\Documents\SEDEC\CADASTRO_Municipios\CNM-RISCO` para não alterar os demais materiais existentes na pasta de trabalho.

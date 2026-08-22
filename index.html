@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#142754" />
+    <title>Cadastro Nacional de Municípios · Protótipo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="auth-screen" id="auth-screen">
+      <div class="auth-visual">
+        <div class="auth-brand">
+          <div class="auth-logos">
+            <img src="https://sedec-dpm-cgnat.github.io/tutorial-trigrs/logos/DPM-Circular.png" alt="Logo do Departamento de Prevenção e Mitigação de Desastres" />
+            <img src="https://sedec-dpm-cgnat.github.io/tutorial-trigrs/logos/logo_marca_sedec.png" alt="Selo Proteção e Defesa Civil Brasil" />
+          </div>
+          <div><span>SEDEC · DPM</span><strong>CNM-RISCO</strong><small>Cadastro Nacional de Municípios</small></div>
+        </div>
+        <div class="auth-copy">
+          <div class="eyebrow">PORTAL NACIONAL · ACESSO MUNICIPAL</div>
+          <h1>Informação organizada para uma prevenção mais <em>eficiente.</em></h1>
+          <p>O espaço do município para consultar sua indicação, enviar evidências e acompanhar a inscrição no Cadastro Nacional.</p>
+        </div>
+        <div class="auth-highlights">
+          <div><strong>2.095</strong><span>municípios indicados<br />no universo técnico</span></div>
+          <div><strong>5</strong><span>inscrições concluídas<br />no recorte demonstrativo</span></div>
+          <div><strong>100%</strong><span>transparência da lista<br />e dos documentos</span></div>
+        </div>
+        <div class="auth-source">Base técnica: Notas Técnicas Casa Civil · 2023–2025 <span>•</span> Consulta pública sem login</div>
+      </div>
+      <div class="auth-panel">
+        <div class="auth-panel-mark">CN</div>
+        <div class="eyebrow">ACESSO SEGURO</div>
+        <h2>Entre com sua conta gov.br</h2>
+        <p>O acesso identifica o município e o responsável pelo preenchimento. A autenticação é feita no ambiente oficial gov.br.</p>
+        <button class="govbr-button" id="govbr-login"><span class="govbr-symbol">◎</span><span>Entrar com gov.br</span><span class="auth-arrow">→</span></button>
+        <div class="auth-divider"><span>ou</span></div>
+        <button class="public-access-button" id="public-access">Consultar transparência pública <span>↗</span></button>
+        <small class="auth-footnote">A consulta às listas de indicados e cadastrados não exige autenticação.</small>
+        <div class="auth-security"><span>✓</span><div><strong>Ambiente institucional</strong><small>Seus dados são tratados conforme as regras de acesso e transparência pública.</small></div></div>
+      </div>
+    </section>
+
+    <div class="app-frame" id="app-frame">
+      <aside class="sidebar" aria-label="Navegação principal">
+        <div class="brand-lockup">
+          <div class="brand-logos">
+            <img src="https://sedec-dpm-cgnat.github.io/tutorial-trigrs/logos/DPM-Circular.png" alt="Logo do Departamento de Prevenção e Mitigação de Desastres" />
+            <img src="https://sedec-dpm-cgnat.github.io/tutorial-trigrs/logos/logo_marca_sedec.png" alt="Selo Proteção e Defesa Civil Brasil" />
+          </div>
+          <div class="brand-copy">
+            <span>SEDEC · DPM</span>
+            <strong>CNM-RISCO</strong>
+            <small>Cadastro Nacional de Municípios</small>
+          </div>
+        </div>
+
+        <div class="demo-label"><span class="pulse-dot"></span> Protótipo de demonstração</div>
+
+        <nav class="nav-list">
+          <button class="nav-item is-active" data-view-target="dashboard">
+            <span class="nav-icon">⌂</span><span>Visão geral</span>
+          </button>
+          <button class="nav-item" data-view-target="cadastro">
+            <span class="nav-icon">▣</span><span>Cadastro municipal</span><span class="nav-count">50%</span>
+          </button>
+          <button class="nav-item" data-view-target="documentos">
+            <span class="nav-icon">✓</span><span>Após efetivação</span>
+          </button>
+          <button class="nav-item" data-view-target="mapa">
+            <span class="nav-icon">⌁</span><span>Mapa de áreas de risco</span>
+          </button>
+          <button class="nav-item" data-view-target="transparencia">
+            <span class="nav-icon">◌</span><span>Transparência pública</span>
+          </button>
+        </nav>
+
+        <div class="nav-section-title">Acompanhamento nacional</div>
+        <nav class="nav-list">
+          <button class="nav-item" data-view-target="indicados">
+            <span class="nav-icon">◎</span><span>Municípios indicados</span>
+          </button>
+          <button class="nav-item" data-demo-action="guia">
+            <span class="nav-icon">?</span><span>Guia de preenchimento</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="support-card">
+            <div class="support-card-icon">✦</div>
+            <div>
+              <strong>Precisa de apoio?</strong>
+              <span>Acesse orientações e canais técnicos.</span>
+            </div>
+            <button class="icon-button light" data-demo-action="suporte" aria-label="Abrir apoio">↗</button>
+          </div>
+          <div class="sidebar-version">CNM-RISCO · versão de conceito 0.1</div>
+        </div>
+      </aside>
+
+      <main class="main-area">
+        <header class="topbar">
+          <div class="mobile-brand">
+            <span class="mobile-mark">CN</span>
+            <strong>CNM-RISCO</strong>
+          </div>
+          <div class="topbar-context">
+            <span class="topbar-kicker">Portal municipal</span>
+            <strong>Cadastro Nacional de Municípios</strong>
+          </div>
+          <div class="topbar-actions">
+            <label class="search-box" aria-label="Pesquisar no portal">
+              <span>⌕</span>
+              <input id="global-search" type="search" placeholder="Pesquisar município ou seção" />
+            </label>
+            <button class="round-button" data-demo-action="ajuda" aria-label="Ajuda">?</button>
+            <button class="profile-button" data-demo-action="perfil">
+              <span class="avatar">SS</span>
+              <span class="profile-text"><strong>Prefeitura de São Sebastião</strong><small>Gestor municipal</small></span>
+              <span class="chevron">⌄</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="content-wrap">
+          <div class="status-ribbon">
+            <span class="status-ribbon-dot"></span>
+            <span>Ambiente de demonstração</span>
+            <span class="ribbon-separator">·</span>
+            <span>Dados ilustrativos baseados no fluxo institucional</span>
+            <button data-demo-action="ambiente">Saiba mais ↗</button>
+          </div>
+
+          <section class="view is-visible" data-view="dashboard">
+            <div class="page-heading dashboard-heading">
+              <div>
+                <div class="eyebrow">PAINEL MUNICIPAL · SÃO SEBASTIÃO / SP</div>
+                <h1>Prevenção que começa<br /><em>com informação.</em></h1>
+                <p>Organize as evidências do seu município, acompanhe as obrigações e mantenha o cadastro público sempre atualizado.</p>
+              </div>
+              <div class="heading-actions">
+                <button class="button button-primary" data-view-target="cadastro">Continuar cadastro <span>→</span></button>
+                <button class="button button-quiet" data-view-target="transparencia">Ver transparência</button>
+              </div>
+            </div>
+
+            <div class="municipality-banner">
+              <div class="municipality-main">
+                <div class="municipality-seal">SS</div>
+                <div>
+                  <div class="micro-label">MUNICÍPIO SELECIONADO</div>
+                  <h2>São Sebastião <span>SP</span></h2>
+                  <p>IBGE 3550704 · Litoral Norte Paulista</p>
+                </div>
+              </div>
+              <div class="municipality-status">
+                <span class="status-badge status-warning"><span></span> Em preenchimento</span>
+                <small>Última atualização<br /><strong>21 ago 2025, 16:42</strong></small>
+              </div>
+            </div>
+
+            <div class="metric-grid">
+              <article class="metric-card accent-blue">
+                <div class="metric-top"><span class="micro-label">PROGRESSO DO CADASTRO</span><span class="metric-icon">◔</span></div>
+                <strong class="metric-value">2<small>/ 4 passos</small></strong>
+                <div class="metric-track"><span style="width:50%"></span></div>
+                <p>Comprovação em preparação</p>
+              </article>
+              <article class="metric-card accent-gold">
+                <div class="metric-top"><span class="micro-label">CADASTRO INICIAL</span><span class="metric-icon">▤</span></div>
+                <strong class="metric-value">1<small> arquivo</small></strong>
+                <div class="metric-note"><span class="mini-dot green"></span> ZIP preferencial · upload único</div>
+              </article>
+              <article class="metric-card accent-teal">
+                <div class="metric-top"><span class="micro-label">COMPROVAÇÃO</span><span class="metric-icon">⌁</span></div>
+                <strong class="metric-value">1<small> pacote</small></strong>
+                <div class="metric-note"><span class="mini-dot teal"></span> Inventário + relação georreferenciada</div>
+              </article>
+              <article class="metric-card accent-coral">
+                <div class="metric-top"><span class="micro-label">SITUAÇÃO</span><span class="metric-icon">◷</span></div>
+                <strong class="metric-value">Pré<small>via</small></strong>
+                <div class="metric-note"><span class="mini-dot orange"></span> Manifestação obrigatória</div>
+              </article>
+            </div>
+
+            <div class="dashboard-grid">
+              <article class="panel progress-panel">
+                <div class="panel-heading">
+                  <div><div class="eyebrow">JORNADA DO MUNICÍPIO</div><h2>Cadastro inicial em quatro passos</h2></div>
+                  <span class="progress-percent">50%</span>
+                </div>
+                <div class="journey-line"><span style="width:50%"></span></div>
+                <div class="steps-row">
+                  <button class="journey-step done" data-view-target="cadastro" data-step-go="1"><span>✓</span><strong>Identificação</strong><small>Concluída</small></button>
+                  <button class="journey-step active" data-view-target="cadastro" data-step-go="2"><span>2</span><strong>Comprovação</strong><small>Em andamento</small></button>
+                  <button class="journey-step" data-view-target="cadastro" data-step-go="3"><span>3</span><strong>Manifestação</strong><small>Pendente</small></button>
+                  <button class="journey-step" data-view-target="cadastro" data-step-go="4"><span>4</span><strong>Revisão e envio</strong><small>Pendente</small></button>
+                </div>
+                <div class="next-step-callout">
+                  <div class="callout-mark">→</div>
+                  <div><strong>Próxima ação: enviar a comprovação</strong><p>Envie um único arquivo com o inventário ou os documentos técnicos que comprovem a área de risco.</p></div>
+                  <button class="text-button" data-view-target="cadastro" data-step-go="2">Continuar <span>→</span></button>
+                </div>
+              </article>
+
+              <article class="panel timeline-panel">
+                <div class="panel-heading"><div><div class="eyebrow">ATIVIDADE RECENTE</div><h2>Rastro do processo</h2></div><button class="more-button" data-demo-action="historico">Ver tudo</button></div>
+                <div class="timeline">
+                  <div class="timeline-item"><span class="timeline-dot done"></span><div><strong>Manifestação prévia registrada</strong><small>15 ago 2025 · Prefeitura</small></div></div>
+                  <div class="timeline-item"><span class="timeline-dot current"></span><div><strong>Comprovação da área de risco</strong><small>Pacote único · em preparação</small></div></div>
+                  <div class="timeline-item muted"><span class="timeline-dot"></span><div><strong>Análise técnica do cadastro</strong><small>Após o envio municipal</small></div></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="lower-grid">
+              <article class="panel obligations-preview">
+                <div class="panel-heading"><div><div class="eyebrow">APÓS A EFETIVAÇÃO · ART. 5º</div><h2>O que será acompanhado depois</h2></div><button class="text-button" data-view-target="documentos">Ver prévia <span>→</span></button></div>
+                <div class="obligation-list compact">
+                  <div class="obligation-row"><span class="check-icon pending">01</span><div><strong>Instituir órgão municipal de defesa civil</strong><small>Identificação da COMPDEC</small></div><span class="row-status neutral">Após efetivação</span></div>
+                  <div class="obligation-row"><span class="check-icon pending">02</span><div><strong>Mapeamento com limites georreferenciados</strong><small>Áreas suscetíveis e ocupações expostas</small></div><span class="row-status neutral">Após efetivação</span></div>
+                  <div class="obligation-row"><span class="check-icon pending">03</span><div><strong>Plano de contingência</strong><small>Prazo de um ano após a inclusão</small></div><span class="row-status neutral">Após efetivação</span></div>
+                  <div class="obligation-row"><span class="check-icon pending">07</span><div><strong>Atualização anual das ocupações</strong><small>Evolução das áreas suscetíveis</small></div><span class="row-status neutral">Anual</span></div>
+                </div>
+              </article>
+
+              <article class="panel map-mini-panel">
+                <div class="panel-heading"><div><div class="eyebrow">INTELIGÊNCIA TERRITORIAL</div><h2>Áreas suscetíveis</h2></div><button class="panel-link" data-view-target="mapa">Abrir mapa ↗</button></div>
+                <div class="mini-map">
+                  <div class="map-toolbar"><span class="map-pill active">SGB</span><span class="map-pill">CEMADEN</span><span class="map-pill">IBGE</span></div>
+                  <svg class="map-art" viewBox="0 0 600 220" role="img" aria-label="Mapa esquemático de setores de risco">
+                    <defs><linearGradient id="terrain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d7e9e3"/><stop offset="1" stop-color="#eff3ea"/></linearGradient><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#bfd8d0" stroke-width="1" opacity=".5"/></pattern></defs>
+                    <path d="M0 20 C90 0 140 48 220 32 S360 12 420 45 S520 50 600 8 V220 H0Z" fill="url(#terrain)"/>
+                    <path d="M0 20 C90 0 140 48 220 32 S360 12 420 45 S520 50 600 8" fill="none" stroke="#9bc7bc" stroke-width="2"/>
+                    <rect width="600" height="220" fill="url(#grid)"/>
+                    <path d="M70 194 C120 156 124 122 186 120 S275 154 322 121 S402 65 456 86 S500 160 560 156" fill="none" stroke="#5d9c9b" stroke-width="10" opacity=".3"/>
+                    <path d="M70 194 C120 156 124 122 186 120 S275 154 322 121 S402 65 456 86 S500 160 560 156" fill="none" stroke="#4f8f96" stroke-width="3" opacity=".75"/>
+                    <path d="M150 64 L216 52 L256 94 L232 143 L172 130 L130 102Z" fill="#e8b5a6" opacity=".66" stroke="#bb765f" stroke-width="2"/>
+                    <path d="M355 44 L425 62 L458 108 L421 140 L358 118 L336 78Z" fill="#e6b46a" opacity=".62" stroke="#be7d24" stroke-width="2"/>
+                    <path d="M452 150 L512 126 L548 158 L526 194 L470 190Z" fill="#e8b5a6" opacity=".68" stroke="#bb765f" stroke-width="2"/>
+                    <g fill="#142754" stroke="#fff" stroke-width="2"><circle cx="192" cy="97" r="6"/><circle cx="391" cy="89" r="6"/><circle cx="493" cy="164" r="6"/></g>
+                    <g fill="#142754" font-family="Arial" font-size="11" font-weight="700"><text x="176" y="78">Morro do Abrigo</text><text x="365" y="68">Topolândia</text><text x="470" y="216">Boiçucanga</text></g>
+                  </svg>
+                  <div class="map-legend"><span><i class="legend-dot red"></i> Muito alto</span><span><i class="legend-dot gold"></i> Alto</span><span><i class="legend-line"></i> Hidrografia</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="info-banner"><div class="info-symbol">i</div><div><strong>O cadastro tem caráter preventivo e de transparência.</strong><span>A inscrição não gera penalidade ao município. Ela organiza informações e amplia o acesso a apoio técnico para redução de riscos.</span></div><button class="text-button" data-demo-action="saiba-mais">Entenda a finalidade <span>↗</span></button></div>
+          </section>
+
+          <section class="view" data-view="cadastro">
+            <div class="page-heading compact-heading"><div><div class="eyebrow">CADASTRO MUNICIPAL · INSCRIÇÃO INICIAL</div><h1>Faça o cadastro em quatro passos</h1><p>Envie uma única comprovação, manifeste a ciência da indicação e acompanhe a análise do município.</p></div><span class="status-badge status-warning"><span></span> Rascunho salvo</span></div>
+            <div class="cadastro-layout">
+              <div class="panel form-panel">
+                <div class="form-stepper" role="tablist" aria-label="Etapas do cadastro">
+                  <button class="form-step active" data-step-nav="1"><span>1</span><small>Identificação</small></button><i></i>
+                  <button class="form-step" data-step-nav="2"><span>2</span><small>Comprovação</small></button><i></i>
+                  <button class="form-step" data-step-nav="3"><span>3</span><small>Manifestação</small></button><i></i>
+                  <button class="form-step" data-step-nav="4"><span>4</span><small>Revisão e envio</small></button>
+                </div>
+
+                <div class="step-panel active" data-step-panel="1">
+                  <div class="form-title"><div><div class="eyebrow">ETAPA 01 DE 04</div><h2>Identificação do município</h2><p>Confirme os dados institucionais e o responsável pelo preenchimento.</p></div><span class="step-time">⏱ 3 min</span></div>
+                  <div class="form-grid"><label>Município<input value="São Sebastião" /></label><label>UF<select><option>SP — São Paulo</option><option>RS — Rio Grande do Sul</option></select></label><label>Código IBGE<input value="3550704" /></label><label>CNPJ da prefeitura<input value="46.482.832/0001-92" /></label><label class="full">Órgão municipal responsável<select><option>Coordenadoria Municipal de Proteção e Defesa Civil — COMPDEC</option></select></label><label>Responsável pelo cadastro<input value="Mariana Alves da Silva" /></label><label>E-mail institucional<input value="defesacivil@saosebastiao.sp.gov.br" /></label></div>
+                  <div class="form-notice"><span>✓</span><div><strong>Dados localizados na base de municípios indicados</strong><p>O código IBGE e a indicação técnica foram conferidos automaticamente.</p></div></div>
+                </div>
+                <div class="step-panel" data-step-panel="2">
+                  <div class="form-title"><div><div class="eyebrow">ETAPA 02 DE 04</div><h2>Comprovação da existência de áreas de risco</h2><p>Envie um único pacote de evidências. O formato preferencial é ZIP, mas o sistema aceitará outros formatos.</p></div><span class="step-time">⏱ 8 min</span></div>
+                  <div class="legal-explanation"><span class="legal-mark">§</span><div><strong>O que precisa ser comprovado?</strong><p>A existência de áreas de risco de desastres por meio de inventário ou de outros documentos expedidos por órgãos ou entidades federais, estaduais ou municipais. Também podem ser utilizados documentos elaborados por agentes privados legalmente habilitados, desde que aplicada metodologia adotada por órgão público.</p><p>O inventário deve incluir o cadastro ou a relação georreferenciada dos imóveis e das infraestruturas expostas ao alto impacto na área considerada.</p><button class="text-button" data-demo-action="base-legal">Ver orientação legal completa ↗</button></div></div>
+                  <div class="upload-zone required-upload" data-proof-upload><input id="proof-file" type="file" hidden /><span class="upload-symbol">↑</span><strong>Envie o pacote de comprovação</strong><small>ZIP preferencial · também aceitamos PDF, DOCX, XLSX, SHP, GeoJSON e outros formatos</small><em>1 arquivo obrigatório · tamanho máximo definido na versão oficial</em></div>
+                  <div class="upload-placeholder"><span class="file-type">ZIP</span><div><strong>comprovacao_area_de_risco.zip</strong><small>Inventário, relação georreferenciada e documentos técnicos</small></div><span class="row-status success">Pronto para enviar</span></div>
+                </div>
+                <div class="step-panel" data-step-panel="3">
+                  <div class="form-title"><div><div class="eyebrow">ETAPA 03 DE 04</div><h2>Manifestação prévia do município</h2><p>Como o município consta na lista de indicados, a inscrição depende da manifestação prévia do responsável.</p></div><span class="step-time">⏱ 3 min</span></div>
+                  <div class="indication-alert"><span>i</span><div><strong>Município identificado na lista de indicados</strong><p>A indicação técnica não substitui a inscrição. Ela apenas inicia o fluxo previsto no art. 3º, inciso II, do Decreto nº 10.692/2021.</p></div></div>
+                  <label class="legal-checkbox"><input id="indication-attestation" type="checkbox" required /><span><strong>Atesto que o município está de acordo com a indicação</strong><small>Declaro, na condição de responsável pelo cadastro, que o município tomou ciência e manifesta concordância com a referida indicação, conforme o art. 3º, § 4º, do Decreto nº 10.692/2021.</small></span></label>
+                  <div class="form-grid"><label>Responsável pela manifestação<input value="Mariana Alves da Silva" /></label><label>Cargo / função<select><option>Prefeito municipal</option><option>Coordenador municipal de proteção e defesa civil</option></select></label><label>Data da manifestação<input type="date" value="2025-08-15" /></label><label>Número do documento (opcional)<input value="Ofício nº 118/2025 — COMPDEC" /></label></div>
+                </div>
+                <div class="step-panel" data-step-panel="4">
+                  <div class="form-title"><div><div class="eyebrow">ETAPA 04 DE 04</div><h2>Revise e envie o cadastro inicial</h2><p>Depois da análise e da efetivação, o município terá acesso às obrigações continuadas do art. 5º.</p></div><span class="step-time">⏱ 2 min</span></div>
+                  <div class="review-summary"><div><span>Município</span><strong>São Sebastião / SP</strong></div><div><span>Comprovação</span><strong class="green-text">1 pacote anexado</strong></div><div><span>Manifestação</span><strong class="green-text">Atesto obrigatório</strong></div><div><span>Próxima situação</span><strong class="gold-text">Aguardando análise</strong></div></div>
+                  <div class="effective-preview"><div class="effective-mark">✓</div><div><strong>Após a efetivação, o painel será ampliado</strong><p>O município poderá carregar, acompanhar e atualizar os documentos relacionados às sete obrigações do art. 5º.</p></div></div>
+                  <label class="declaration"><input type="checkbox" checked /> <span>Declaro que as informações e o pacote de comprovação apresentados são verdadeiros, atuais e de responsabilidade do município.</span></label>
+                </div>
+                <div class="form-footer"><button class="button button-quiet" data-step-prev>← Voltar</button><span class="save-status"><span class="save-dot"></span> Salvo automaticamente há 2 min</span><button class="button button-primary" data-step-next>Salvar e continuar <span>→</span></button></div>
+              </div>
+              <aside class="side-guide"><div class="guide-card dark"><div class="guide-top"><span class="guide-kicker">ORIENTAÇÃO RÁPIDA</span><span class="guide-number">01</span></div><h3>Um único pacote</h3><p>Reúna inventário, relação georreferenciada e documentos técnicos em um arquivo ZIP preferencialmente.</p><button class="button button-light" data-demo-action="guia">Ver formatos aceitos <span>↗</span></button></div><div class="guide-card"><div class="eyebrow">STATUS DO ENVIO</div><div class="side-progress"><div><strong>50%</strong><span>cadastro inicial</span></div><div class="circle-progress"><span>50</span><small>%</small></div></div><div class="side-progress-track"><span style="width:50%"></span></div><ul class="side-checks"><li class="complete">Identificação</li><li class="current">Comprovação</li><li>Manifestação</li><li>Revisão e envio</li></ul></div></aside>
+            </div>
+          </section>
+
+          <section class="view" data-view="documentos">
+            <div class="page-heading compact-heading"><div><div class="eyebrow">APÓS A EFETIVAÇÃO · ART. 5º</div><h1>Obrigações do município cadastrado</h1><p>Esta área será liberada depois da efetivação da inscrição e reunirá os documentos e atualizações anuais do município.</p></div><button class="button button-secondary" data-demo-action="baixar-checklist">↓ Baixar orientações</button></div>
+            <div class="post-registration-lock"><span class="lock-symbol">⌁</span><div><strong>Área disponível após a efetivação</strong><p>O cadastro inicial de São Sebastião ainda está em preenchimento. Abaixo está a prévia dos campos que serão habilitados quando a inscrição for efetivada.</p></div><span class="status-badge status-warning"><span></span> Aguardando inscrição</span></div>
+            <div class="document-dashboard"><div class="panel doc-summary"><div class="summary-score"><div class="big-score">0<span>/7</span></div><div><strong>obrigações pós-inscrição</strong><small>Serão acompanhadas neste painel após a efetivação.</small></div></div><div class="score-track"><span style="width:0%"></span></div><div class="summary-foot"><span><i class="mini-dot green"></i> 0 liberadas</span><span><i class="mini-dot orange"></i> 7 aguardando</span><span>Atualização anual após a inscrição</span></div></div><div class="panel doc-tip"><span class="tip-icon">✦</span><div><strong>Apoio da União e dos Estados</strong><p>O Decreto prevê apoio aos municípios na execução das ações, conforme a disponibilidade orçamentária e financeira.</p><button class="text-button" data-demo-action="apoio-uniao">Ver caminhos de apoio →</button></div></div></div>
+            <div class="panel full-doc-panel"><div class="panel-heading"><div><div class="eyebrow">SETE OBRIGAÇÕES CONTINUADAS</div><h2>Campos que serão habilitados</h2></div><span class="status-badge status-neutral"><span></span> Prévia do painel</span></div><div class="obligation-list full"><div class="obligation-detail locked"><div class="obligation-number">01</div><div class="obligation-info"><span class="row-status neutral">Pós-inscrição</span><h3>Instituir órgão municipal de defesa civil</h3><p>Identificação do órgão municipal e dos procedimentos adotados conforme o órgão central do SINPDEC.</p></div><button class="button button-small button-outline" data-demo-action="art5">Ver campo</button></div><div class="obligation-detail locked"><div class="obligation-number">02</div><div class="obligation-info"><span class="row-status neutral">Pós-inscrição</span><h3>Mapeamento georreferenciado das áreas suscetíveis</h3><p>Limites georreferenciados das áreas suscetíveis a deslizamentos, inundações bruscas e processos correlatos.</p></div><button class="button button-small button-outline" data-demo-action="art5">Ver campo</button></div><div class="obligation-detail locked"><div class="obligation-number">03</div><div class="obligation-info"><span class="row-status neutral">Prazo de 1 ano</span><h3>Plano de contingência de proteção e defesa civil</h3><p>Plano vigente para resposta a desastres, observado o art. 3º-A, § 7º, da Lei nº 12.340/2010.</p></div><button class="button button-small button-outline" data-demo-action="art5">Ver campo</button></div><div class="obligation-detail locked"><div class="obligation-number">04</div><div class="obligation-info"><span class="row-status neutral">Pós-inscrição</span><h3>Plano de implantação de obras e serviços</h3><p>Plano para redução de riscos, com ações, prioridades, localidades e estimativas.</p></div><button class="button button-small button-outline" data-demo-action="art5">Ver campo</button></div><div class="obligation-detail locked"><div class="obligation-number">05</div><div class="obligation-info"><span class="row-status neutral">Pós-inscrição</span><h3>Mecanismos de controle e fiscalização</h3><p>Instrumentos municipais para evitar novas edificações em áreas suscetíveis.</p></div><button class="button button-small button-outline" data-demo-action="art5">Ver campo</button></div><div class="obligation-detail locked"><div class="obligation-number">06</div><div class="obligation-info"><span class="row-status neutral">Pós-inscrição</span><h3>Carta geotécnica e diretrizes urbanísticas</h3><p>Carta de aptidão à urbanização e diretrizes para novos parcelamentos do solo.</p></div><button class="button button-small button-outline" data-demo-action="art5">Ver campo</button></div><div class="obligation-detail locked"><div class="obligation-number">07</div><div class="obligation-info"><span class="row-status neutral">Atualização anual</span><h3>Evolução das ocupações em áreas suscetíveis</h3><p>Atualização anual do cadastro e do inventário sobre a evolução das ocupações.</p></div><button class="button button-small button-outline" data-demo-action="art5">Ver campo</button></div></div></div>
+          </section>
+
+          <section class="view" data-view="mapa">
+            <div class="page-heading compact-heading"><div><div class="eyebrow">INTELIGÊNCIA TERRITORIAL</div><h1>Mapa de áreas suscetíveis</h1><p>Conecte os mapeamentos municipais às bases técnicas de referência.</p></div><div class="heading-actions"><button class="button button-secondary" data-demo-action="camadas">＋ Adicionar camada</button><button class="button button-primary" data-demo-action="exportar">↓ Exportar visão</button></div></div>
+            <div class="map-workspace panel"><div class="map-canvas-large"><div class="large-map-controls"><button>＋</button><button>−</button><button>⌖</button><span></span><button class="map-control-label">Camadas ▾</button></div><svg viewBox="0 0 1000 620" role="img" aria-label="Mapa esquemático de São Sebastião com camadas de risco"><defs><linearGradient id="mapBg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d9eae5"/><stop offset=".55" stop-color="#eff2e9"/><stop offset="1" stop-color="#d4e7de"/></linearGradient><pattern id="mapGrid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#a6c5bc" stroke-width="1" opacity=".42"/></pattern><filter id="softShadow"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity=".16"/></filter></defs><rect width="1000" height="620" fill="url(#mapBg)"/><rect width="1000" height="620" fill="url(#mapGrid)"/><path d="M0 480 C130 410 162 310 264 330 S413 478 526 392 S643 130 758 210 S875 412 1000 310 V620 H0Z" fill="#b9d5c9" opacity=".4"/><path d="M0 120 C121 160 187 71 279 109 S408 206 510 138 S686 54 785 112 S908 176 1000 125" fill="none" stroke="#b1d0c4" stroke-width="4" opacity=".6"/><path d="M40 560 C170 485 178 386 302 395 S466 515 584 409 S684 245 805 290 S903 457 990 430" fill="none" stroke="#4f8f96" stroke-width="12" opacity=".33"/><path d="M40 560 C170 485 178 386 302 395 S466 515 584 409 S684 245 805 290 S903 457 990 430" fill="none" stroke="#4f8f96" stroke-width="3" opacity=".9"/><path d="M104 148 L266 100 L353 196 L310 319 L163 284 L72 211Z" fill="#e5aaa0" opacity=".66" stroke="#b96e5c" stroke-width="3"/><path d="M419 118 L575 83 L664 171 L629 294 L480 271 L385 197Z" fill="#e3b266" opacity=".66" stroke="#bd7b27" stroke-width="3"/><path d="M710 359 L866 316 L940 408 L894 528 L756 507 L670 433Z" fill="#e5aaa0" opacity=".68" stroke="#b96e5c" stroke-width="3"/><path d="M510 374 L596 331 L652 392 L618 459 L536 450Z" fill="#e3b266" opacity=".62" stroke="#bd7b27" stroke-width="3"/><g fill="#142754" stroke="#fff" stroke-width="4" filter="url(#softShadow)"><circle cx="209" cy="201" r="12"/><circle cx="534" cy="186" r="12"/><circle cx="802" cy="419" r="12"/><circle cx="578" cy="405" r="12"/></g><g fill="#142754" font-family="Arial" font-size="18" font-weight="700"><text x="135" y="178">Canto do Mar</text><text x="462" y="161">Topolândia</text><text x="740" y="450">Boiçucanga</text><text x="530" y="480">Maresias</text></g><g fill="#fff" font-family="Arial" font-size="14" font-weight="700"><text x="191" y="206">01</text><text x="516" y="191">02</text><text x="784" y="424">03</text><text x="560" y="410">04</text></g><g transform="translate(34 34)"><rect width="172" height="60" rx="10" fill="#fff" opacity=".92"/><text x="18" y="25" fill="#687587" font-size="12" font-family="Arial" font-weight="700">SÃO SEBASTIÃO · SP</text><text x="18" y="46" fill="#142754" font-size="14" font-family="Arial" font-weight="700">42 setores em análise</text></g></svg><div class="map-scale"><span></span><small>2 km</small></div><div class="map-attribution">Mapeamento ilustrativo · integração SGB, CEMADEN e base municipal</div></div><aside class="map-sidebar"><div class="map-side-head"><div><div class="eyebrow">CAMADAS ATIVAS</div><h2>Leitura territorial</h2></div><button class="more-button" data-demo-action="configurar">•••</button></div><div class="layer-list"><label class="layer-item"><input type="checkbox" checked /><span class="layer-swatch risk-red"></span><div><strong>Risco muito alto</strong><small>18 setores · 1.238 edificações</small></div></label><label class="layer-item"><input type="checkbox" checked /><span class="layer-swatch risk-gold"></span><div><strong>Risco alto</strong><small>24 setores · 2.614 edificações</small></div></label><label class="layer-item"><input type="checkbox" checked /><span class="layer-swatch river"></span><div><strong>Hidrografia e drenagem</strong><small>SGB · escala 1:25.000</small></div></label><label class="layer-item"><input type="checkbox" /><span class="layer-swatch city"></span><div><strong>Edificações expostas</strong><small>3.852 registros georreferenciados</small></div></label></div><div class="map-stat-card"><span class="micro-label">EXPOSIÇÃO ESTIMADA</span><strong>3.852 <small>edificações</small></strong><div class="stat-bars"><i style="height:44%"></i><i style="height:63%"></i><i style="height:77%"></i><i style="height:52%"></i><i style="height:88%"></i><i style="height:70%"></i><i style="height:94%"></i></div><p>Distribuição por setor de risco</p></div><button class="button button-secondary full-button" data-demo-action="integrar">＋ Integrar novo mapeamento</button></aside></div>
+            <div class="info-banner"><div class="info-symbol">⌁</div><div><strong>Interface preparada para integração com outros mapeamentos.</strong><span>Na versão completa, o município poderá consultar e comparar camadas do SGB, CEMADEN, ANA e bases próprias.</span></div><button class="text-button" data-demo-action="integrar">Conhecer integrações <span>↗</span></button></div>
+          </section>
+
+          <section class="view" data-view="transparencia">
+            <div class="page-heading compact-heading"><div><div class="eyebrow">ACESSO PÚBLICO · ACORDO JUDICIAL</div><h1>Transparência do cadastro</h1><p>Consulte a situação atualizada dos municípios e os documentos apresentados.</p></div><button class="button button-primary" data-demo-action="exportar">↓ Baixar dados abertos</button></div>
+            <div class="public-banner"><div class="public-icon">◌</div><div><strong>Consulta pública, clara e acessível</strong><p>Esta área reúne pedido de inscrição, manifestação municipal, aprovação/anuência, situação e documentos por município. O CNM-RISCO permanece separado de cadastros correlatos de enxurradas e inundações.</p></div><div class="public-updated"><span>ATUALIZADO EM</span><strong>01 jul 2026</strong></div></div>
+            <div class="public-kpis"><div><span>Municípios indicados</span><strong>2.095</strong><small>universo técnico · NT 1/2025 + NT 2/2025</small></div><div><span>Municípios cadastrados</span><strong>5</strong><small>inscrições concluídas no S2iD</small></div><div><span>Em preenchimento</span><strong>50</strong><small>processos municipais em andamento</small></div><div><span>Recorte legal específico</span><strong>2.086</strong><small>enxurradas e inundações · NT 2/2025</small></div></div>
+            <div class="transparency-segment" role="tablist" aria-label="Separação das listas públicas"><button class="active" data-transparency-filter="all">Visão geral <small>2.095 indicados</small></button><button data-transparency-filter="indicated">Indicados <small>lista técnica</small></button><button data-transparency-filter="registered">Cadastrados <small>base S2iD</small></button><button data-transparency-filter="in-progress">Em preenchimento <small>processos abertos</small></button></div>
+            <div class="distinction-note"><span class="distinction-icon">i</span><div><strong>Como interpretar as listas</strong><span><b>Indicado</b> significa que o município integra o universo técnico das notas. <b>Cadastrado</b> significa que a inscrição foi concluída na base oficial. <b>Em preenchimento</b> identifica um processo ainda não finalizado.</span></div></div>
+            <div class="panel public-table-panel"><div class="table-toolbar"><div><div class="eyebrow">LISTAGEM NACIONAL · RECORTE DEMONSTRATIVO</div><h2>Indicados, cadastrados e processos</h2></div><div class="table-actions"><label class="table-search">⌕ <input id="municipality-search" placeholder="Buscar município ou UF" /></label><select id="public-status"><option value="all">Todos os status</option><option value="Concluído">Concluído</option><option value="Em preenchimento">Em preenchimento</option><option value="Indicado">Indicado</option></select></div></div><div class="table-scroll"><table><thead><tr><th>Município</th><th>UF</th><th>Origem</th><th>Pedido de inscrição</th><th>Manifestação municipal</th><th>Aprovação / anuência</th><th>Documentos</th><th>Situação</th><th></th></tr></thead><tbody id="municipality-table"><tr data-category="in-progress"><td><strong>São Sebastião</strong><small>IBGE 3550704</small></td><td>SP</td><td><span class="origin-pill process">Processo</span></td><td>15 ago 2025</td><td>15 ago 2025</td><td>Aguardando análise</td><td><span class="doc-count">11/19</span></td><td><span class="status-badge status-warning"><span></span> Em preenchimento</span></td><td><button class="table-link" data-demo-action="detalhe">Ver ficha ↗</button></td></tr><tr data-category="indicated"><td><strong>Caraguatatuba</strong><small>IBGE 3510500</small></td><td>SP</td><td><span class="origin-pill indicated">Nota técnica</span></td><td>—</td><td>—</td><td>—</td><td><span class="doc-count muted-count">0/19</span></td><td><span class="status-badge status-neutral"><span></span> Indicado</span></td><td><button class="table-link" data-demo-action="detalhe">Ver ficha ↗</button></td></tr><tr data-category="indicated"><td><strong>Ubatuba</strong><small>IBGE 3555406</small></td><td>SP</td><td><span class="origin-pill indicated">Nota técnica</span></td><td>—</td><td>—</td><td>—</td><td><span class="doc-count muted-count">0/19</span></td><td><span class="status-badge status-neutral"><span></span> Indicado</span></td><td><button class="table-link" data-demo-action="detalhe">Ver ficha ↗</button></td></tr><tr data-category="indicated"><td><strong>Ilhabela</strong><small>IBGE 3520400</small></td><td>SP</td><td><span class="origin-pill indicated">Nota técnica</span></td><td>—</td><td>—</td><td>—</td><td><span class="doc-count muted-count">0/19</span></td><td><span class="status-badge status-neutral"><span></span> Indicado</span></td><td><button class="table-link" data-demo-action="detalhe">Ver ficha ↗</button></td></tr><tr data-category="registered"><td><strong>Porto Alegre</strong><small>IBGE 4314902</small></td><td>RS</td><td><span class="origin-pill registered">S2iD</span></td><td>22 jun 2026</td><td>03 jul 2026</td><td>18 jul 2026</td><td><span class="doc-count">19/19</span></td><td><span class="status-badge status-success"><span></span> Cadastrado</span></td><td><button class="table-link" data-demo-action="detalhe">Ver ficha ↗</button></td></tr></tbody></table></div><div class="table-footer"><span>Recorte demonstrativo · a listagem completa será consultada na fonte oficial</span><div><button class="pagination active">1</button><button class="pagination">2</button><button class="pagination">3</button><span>…</span><button class="pagination">→</button></div></div></div>
+          </section>
+
+          <section class="view" data-view="indicados">
+            <div class="page-heading compact-heading"><div><div class="eyebrow">ACOMPANHAMENTO NACIONAL</div><h1>Municípios indicados</h1><p>Visão gerencial do universo técnico e do avanço das inscrições.</p></div><button class="button button-primary" data-demo-action="exportar">↓ Exportar base</button></div>
+            <div class="national-kpi-grid"><article><span class="kpi-icon blue">◎</span><div><small>UNIVERSO TÉCNICO</small><strong>2.095</strong><p>municípios indicados</p></div></article><article><span class="kpi-icon gold">◷</span><div><small>PROCESSOS ABERTOS</small><strong>55</strong><p>5 concluídos · 50 em preenchimento</p></div></article><article><span class="kpi-icon teal">↗</span><div><small>ADESÃO ESTIMADA</small><strong>2,6%</strong><p>dos municípios indicados</p></div></article><article><span class="kpi-icon coral">!</span><div><small>RS · NOTIFICAÇÃO</small><strong>206</strong><p>municípios na fila de ciência</p></div></article></div>
+            <div class="admin-grid"><article class="panel chart-panel"><div class="panel-heading"><div><div class="eyebrow">EVOLUÇÃO DO CADASTRO</div><h2>Processos por situação</h2></div><span class="chart-period">2025 — 2026 ▾</span></div><div class="bar-chart"><div class="bar-group"><div class="bars"><i style="height:15%"></i><i class="bar-dark" style="height:8%"></i></div><span>out/25</span></div><div class="bar-group"><div class="bars"><i style="height:23%"></i><i class="bar-dark" style="height:12%"></i></div><span>dez/25</span></div><div class="bar-group"><div class="bars"><i style="height:36%"></i><i class="bar-dark" style="height:18%"></i></div><span>fev/26</span></div><div class="bar-group"><div class="bars"><i style="height:54%"></i><i class="bar-dark" style="height:29%"></i></div><span>abr/26</span></div><div class="bar-group"><div class="bars"><i style="height:72%"></i><i class="bar-dark" style="height:43%"></i></div><span>jun/26</span></div><div class="bar-group"><div class="bars"><i style="height:88%"></i><i class="bar-dark" style="height:55%"></i></div><span>ago/26</span></div></div><div class="chart-legend"><span><i></i> Indicados com processo</span><span><i class="dark"></i> Inscrições concluídas</span></div></article><article class="panel notification-panel"><div class="panel-heading"><div><div class="eyebrow">PLANO DE NOTIFICAÇÃO · RS</div><h2>Ciência dos municípios</h2></div><span class="status-badge status-warning"><span></span> Em preparação</span></div><div class="notification-progress"><div class="notification-number">206<small>municípios</small></div><div class="donut"><span>0<small>%</small></span></div></div><p>Minuta de comunicação conjunta pronta para envio aos municípios indicados do Rio Grande do Sul.</p><button class="button button-secondary full-button" data-demo-action="notificacao">Abrir minuta de notificação ↗</button></article></div>
+            <div class="panel national-table"><div class="panel-heading"><div><div class="eyebrow">RECORTE DEMONSTRATIVO</div><h2>Municípios com maior prioridade</h2></div><button class="text-button" data-view-target="transparencia">Abrir transparência <span>→</span></button></div><div class="rank-list"><div><span class="rank">01</span><strong>São Sebastião <small>SP</small></strong><span class="rank-bar"><i style="width:92%"></i></span><b>Em preenchimento</b></div><div><span class="rank">02</span><strong>Porto Alegre <small>RS</small></strong><span class="rank-bar"><i style="width:86%"></i></span><b class="green-text">Concluído</b></div><div><span class="rank">03</span><strong>Caraguatatuba <small>SP</small></strong><span class="rank-bar"><i style="width:77%"></i></span><b>Indicado</b></div><div><span class="rank">04</span><strong>Ubatuba <small>SP</small></strong><span class="rank-bar"><i style="width:69%"></i></span><b>Indicado</b></div></div></div>
+          </section>
+
+          <footer class="app-footer"><div><strong>CNM-RISCO</strong><span>Cadastro Nacional de Municípios com Áreas Suscetíveis</span></div><div><span>Protótipo conceitual · dados ilustrativos</span><button class="text-button" data-demo-action="acessibilidade">Acessibilidade ↗</button></div></footer>
+        </div>
+      </main>
+    </div>
+
+    <div class="modal-backdrop" id="modal-backdrop" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button class="modal-close" id="modal-close" aria-label="Fechar">×</button>
+        <div class="modal-icon">✦</div>
+        <div class="eyebrow">MODO DEMONSTRAÇÃO</div>
+        <h2 id="modal-title">Ação simulada no protótipo</h2>
+        <p id="modal-copy">Esta interação está pronta para receber a integração com o serviço oficial. Nenhum dado real será enviado nesta demonstração.</p>
+        <button class="button button-primary full-button" id="modal-ok">Entendi</button>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
