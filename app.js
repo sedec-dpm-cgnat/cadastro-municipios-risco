@@ -593,3 +593,45 @@ document.querySelectorAll('.map-pill').forEach(pill => pill.addEventListener('cl
   pill.classList.add('active');
   showToast(`Camada ${pill.textContent} selecionada.`);
 }));
+
+const territoryMunicipality = document.querySelector('#territory-municipality');
+const territoryUf = document.querySelector('#territory-uf');
+const territorySearch = document.querySelector('#territory-search');
+const territoryStateCount = document.querySelector('#territory-state-count');
+const territoryResultTitle = document.querySelector('#territory-result-title');
+const territoryResultCopy = document.querySelector('#territory-result-copy');
+const territoryCatalogLink = document.querySelector('#territory-catalog-link');
+const territoryRiskLink = document.querySelector('#territory-risk-link');
+const territorySusceptibilityLink = document.querySelector('#territory-susceptibility-link');
+const territoryMapName = document.querySelector('#territory-map-name');
+const territoryMapStatus = document.querySelector('#territory-map-status');
+const territoryMapAttribution = document.querySelector('#territory-map-attribution');
+const territorySgbLayerCopy = document.querySelector('#territory-sgb-layer-copy');
+const sgbStateCounts = { AC: 22, AL: 37, AP: 8, AM: 62, BA: 95, CE: 72, DF: 1, ES: 77, GO: 28, MA: 93, MT: 32, MS: 24, MG: 222, PA: 96, PB: 40, PR: 46, PE: 115, PI: 48, RJ: 5, RN: 32, RS: 134, RO: 52, RR: 5, SC: 294, SP: 126, SE: 31, TO: 15 };
+const sgbStateCatalogs = { SP: 'https://sgb.gov.br/cartografia-de-riscos-geologicos-sao-paulo' };
+function updateTerritorySource(showFeedback = false) {
+  if (!territoryMunicipality || !territoryUf) return;
+  const municipality = territoryMunicipality.value.trim() || 'Município selecionado';
+  const uf = territoryUf.value;
+  const count = sgbStateCounts[uf] || 0;
+  const catalogUrl = sgbStateCatalogs[uf] || 'https://www.sgb.gov.br/produtos-por-estado-cartografia-de-riscos-geologicos';
+  if (territoryResultTitle) territoryResultTitle.textContent = `${municipality} · ${uf}`;
+  if (territoryResultCopy) territoryResultCopy.textContent = `O catálogo do SGB/CPRM informa ${count} municípios mapeados em ${uf}. Nesta demonstração, a consulta está pronta para ser vinculada ao código IBGE, aos produtos encontrados e aos metadados do processo municipal.`;
+  if (territoryStateCount) territoryStateCount.innerHTML = `${String(count).padStart(3, '0')}<small>municípios mapeados em ${uf}</small>`;
+  if (territoryCatalogLink) {
+    territoryCatalogLink.href = catalogUrl;
+    territoryCatalogLink.textContent = `Abrir catálogo SGB/CPRM de ${uf} ↗`;
+  }
+  if (territoryRiskLink) territoryRiskLink.href = catalogUrl;
+  if (territorySusceptibilityLink) territorySusceptibilityLink.href = 'https://www.sgb.gov.br/produtos-por-estado-cartografia-de-suscetibilidade';
+  if (territoryMapName) territoryMapName.textContent = `${municipality.toUpperCase()} · ${uf}`;
+  if (territoryMapStatus) territoryMapStatus.textContent = `${count} municípios mapeados no estado`;
+  if (territoryMapAttribution) territoryMapAttribution.textContent = `Prévia municipal · referência SGB/CPRM · catálogo ${uf}`;
+  if (territorySgbLayerCopy) territorySgbLayerCopy.textContent = `Catálogo por município · ${count} mapeados em ${uf}`;
+  if (showFeedback) showToast(`Consulta SGB/CPRM preparada para ${municipality}/${uf}.`);
+}
+if (territorySearch) territorySearch.addEventListener('click', () => updateTerritorySource(true));
+if (territoryMunicipality) territoryMunicipality.addEventListener('change', () => updateTerritorySource());
+if (territoryUf) territoryUf.addEventListener('change', () => updateTerritorySource());
+document.querySelector('[data-territory-relate]')?.addEventListener('click', () => openModal('integrar'));
+updateTerritorySource();

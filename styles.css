@@ -208,6 +208,37 @@ button { cursor: pointer; }
 .external-integration-strip { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 13px 16px; margin-bottom: 12px; border: 1px solid #d4e6df; border-radius: 10px; background: #f2f8f5; }.external-integration-strip > div { display: grid; gap: 4px; }.external-integration-strip .eyebrow { color: #36857b; font-size: 8px; }.external-integration-strip strong { color: var(--ink); font-size: 10px; }.external-integration-strip span { color: var(--muted); font-size: 8px; }.external-integration-strip a { flex: 0 0 auto; color: #27776e; font-size: 9px; font-weight: 800; text-decoration: none; }.external-integration-strip a:hover { text-decoration: underline; }
 @media (max-width: 600px) { .external-integration-strip { align-items: start; flex-direction: column; gap: 9px; }.external-integration-strip a { font-size: 8px; } }
 
+.territory-query-card { padding: 20px; margin-bottom: 16px; border: 1px solid #d7e6e1; background: linear-gradient(110deg, #f4faf7, #ffffff 72%); }
+.territory-query-head { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+.territory-query-head h2 { margin: 6px 0 5px; font-family: Manrope, sans-serif; font-size: 19px; letter-spacing: -.035em; }
+.territory-query-head p { max-width: 680px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.territory-query-controls { display: grid; grid-template-columns: minmax(220px, 1fr) 210px auto; gap: 10px; align-items: end; margin-top: 17px; }
+.territory-query-controls label { display: grid; gap: 6px; color: var(--muted); font-size: 9px; font-weight: 800; }
+.territory-query-controls input, .territory-query-controls select { width: 100%; min-height: 38px; padding: 0 10px; border: 1px solid #d6e1e2; border-radius: 7px; outline: none; color: var(--ink); background: #fff; font-size: 10px; }
+.territory-query-controls input:focus, .territory-query-controls select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-soft); }
+.territory-query-result { display: flex; gap: 10px; align-items: start; margin-top: 13px; padding: 12px; border: 1px solid #cfe4db; border-radius: 9px; background: #fff; }
+.territory-result-icon { width: 27px; height: 27px; display: grid; place-items: center; flex: 0 0 27px; border-radius: 8px; color: #27776e; background: var(--teal-soft); font-size: 15px; }
+.territory-query-result > div { flex: 1; }
+.territory-query-result strong, .territory-query-result p { display: block; }
+.territory-query-result strong { color: var(--ink); font-size: 10px; }
+.territory-query-result p { max-width: 710px; margin: 4px 0 0; color: var(--muted); font-size: 9px; line-height: 1.45; }
+.territory-result-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 7px; }
+.territory-result-links a { color: #27776e; font-size: 8px; font-weight: 800; text-decoration: none; }
+.territory-result-links a:hover { text-decoration: underline; }
+.territory-result-links .text-button { color: var(--blue); font-size: 8px; }
+.territory-state-count { min-width: 78px; padding-left: 11px; border-left: 1px solid #d9e9e3; color: #27776e; font-family: Manrope, sans-serif; font-size: 20px; font-weight: 800; line-height: 1; text-align: right; }
+.territory-state-count small { display: block; margin-top: 5px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 7px; font-weight: 600; line-height: 1.3; }
+.territory-products { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 10px; }
+.territory-products article { display: grid; gap: 5px; padding: 11px 12px; border: 1px solid #dfe9e6; border-radius: 8px; background: rgba(255,255,255,.72); }
+.territory-products strong { color: var(--ink); font-size: 10px; }
+.territory-products small { color: var(--muted); font-size: 8px; line-height: 1.4; }
+.territory-products a { color: #27776e; font-size: 8px; font-weight: 800; text-decoration: none; }
+.territory-products a:hover { text-decoration: underline; }
+.product-status { color: #27776e; font-size: 7px; font-weight: 900; letter-spacing: .1em; }
+.product-status-blue { color: var(--blue); }
+@media (max-width: 700px) { .territory-query-head { align-items: start; flex-direction: column; gap: 9px; }.territory-query-controls { grid-template-columns: 1fr 1fr; }.territory-query-controls .button { grid-column: 1 / -1; }.territory-products { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .territory-query-card { padding: 15px; }.territory-query-controls { grid-template-columns: 1fr; }.territory-query-controls .button { grid-column: auto; width: 100%; }.territory-query-result { flex-wrap: wrap; }.territory-state-count { width: calc(100% - 37px); margin-left: 37px; padding: 8px 0 0; border-top: 1px solid #d9e9e3; border-left: 0; text-align: left; } }
+
 /* Mapa nacional: geometria real, camada hachurada e cadastros destacados */
 .public-map-canvas .brazil-base, .national-map-shell .brazil-base { fill: #f7faf8; }
 .public-map-canvas .brazil-hatch, .national-map-shell .brazil-hatch { opacity: .95; }

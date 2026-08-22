@@ -71,6 +71,8 @@ O Decreto nº 10.692/2021 condiciona a inscrição à comprovação da existênc
 
 Como apoio à preparação do pacote, o sistema deve apresentar uma referência ao [catálogo de Cartografia de Riscos Geológicos do SGB/CPRM](https://www.sgb.gov.br/produtos-por-estado-cartografia-de-riscos-geologicos), organizado por estado e município. O produto disponível poderá orientar a comprovação e ser relacionado ao processo, sem substituir a responsabilidade municipal nem transformar a consulta externa em requisito obrigatório.
 
+No painel de Inteligência Territorial, a consulta começa pelo município e pela UF. O sistema apresenta o catálogo estadual correspondente, a quantidade de municípios mapeados e os tipos de produto que podem ser relacionados ao cadastro. Na versão integrada, essa consulta deverá usar o código IBGE para resolver o município, registrar a fonte e a data da consulta, abrir o produto no repositório oficial do SGB/CPRM e permitir que o responsável relacione o produto à comprovação enviada.
+
 ### Manifestação do município indicado
 
 Quando o município estiver na lista de indicados, o responsável deve marcar um checkbox obrigatório com o texto:
