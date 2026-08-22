@@ -105,6 +105,8 @@ Cada item terá:
 - responsável pela atualização;
 - visibilidade pública configurável conforme a regra do cadastro.
 
+No protótipo, o botão **Ver painel habilitado** simula a efetivação da inscrição e libera uma visão demonstrativa dessas sete obrigações. Cada cartão permite selecionar um arquivo, definir status, registrar a data da atualização e incluir uma observação técnica. Na versão integrada, a abertura desse painel será condicionada ao estado `CADASTRADO`, com armazenamento seguro, checksum, histórico e trilha de auditoria.
+
 ## 4. Transparência e mapa nacional
 
 ### Consulta pública

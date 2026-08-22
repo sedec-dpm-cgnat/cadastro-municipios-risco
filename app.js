@@ -73,6 +73,7 @@ const actionMessages = {
   'base-legal': ['Comprovação da área de risco', 'O pacote pode reunir inventário, relação georreferenciada de imóveis e infraestruturas expostas e outros documentos emitidos por órgãos públicos ou por agentes privados legalmente habilitados com metodologia reconhecida.'],
   'apoio-uniao': ['Apoio da União e dos Estados', 'O Decreto prevê apoio aos municípios na execução das ações do art. 5º, conforme as competências e a disponibilidade orçamentária e financeira. A versão integrada poderá reunir os caminhos de apoio técnico disponíveis.'],
   art5: ['Campo pós-inscrição', 'Este campo será habilitado depois que a inscrição do município for efetivada. O responsável poderá anexar o documento, informar a versão e registrar a atualização anual.'],
+  'salvar-obrigacoes': ['Atualizações salvas', 'Nesta demonstração, os arquivos e informações permanecem apenas no navegador. Na versão integrada, cada evidência será armazenada com metadados, checksum, histórico e trilha de auditoria.'],
   acessibilidade: ['Acessibilidade', 'O produto final prevê navegação por teclado, contraste adequado, textos alternativos, linguagem clara e consulta pública sem barreiras.'],
   enviar: ['Enviar cadastro inicial', 'O cadastro será encaminhado para análise técnica após a conferência da comprovação e da manifestação municipal. Nesta demonstração, nenhum dado é enviado.']
 };
@@ -233,6 +234,68 @@ if (docFilter) docFilter.addEventListener('change', () => {
     row.style.display = matches ? 'flex' : 'none';
   });
 });
+
+const enableObligations = document.querySelector('#enable-obligations');
+const enabledObligations = document.querySelector('#enabled-obligations');
+const postRegistrationCopy = document.querySelector('#post-registration-copy');
+const postRegistrationStatus = document.querySelector('#post-registration-status');
+const documentSummaryScore = document.querySelector('.doc-summary .big-score');
+const documentScoreTrack = document.querySelector('.doc-summary .score-track span');
+const documentSummaryFoot = document.querySelector('.doc-summary .summary-foot');
+function refreshObligationSummary() {
+  if (!enabledObligations) return;
+  const rows = [...enabledObligations.querySelectorAll('[data-obligation-card]')];
+  const completed = rows.filter(row => {
+    const fileInput = row.querySelector('[data-obligation-file]');
+    const statusSelect = row.querySelector('select');
+    return Boolean(fileInput?.files?.length) || ['Enviado', 'Aprovado'].includes(statusSelect?.value);
+  }).length;
+  if (documentSummaryScore) documentSummaryScore.innerHTML = `${completed}<span>/${rows.length}</span>`;
+  if (documentScoreTrack) documentScoreTrack.style.width = `${rows.length ? (completed / rows.length) * 100 : 0}%`;
+  if (documentSummaryFoot) documentSummaryFoot.innerHTML = `<span><i class="mini-dot green"></i> ${completed} liberadas</span><span><i class="mini-dot orange"></i> ${rows.length - completed} aguardando</span><span>Atualização anual após a inscrição</span>`;
+}
+if (enableObligations && enabledObligations) {
+  enableObligations.addEventListener('click', () => {
+    enabledObligations.hidden = false;
+    enableObligations.style.display = 'none';
+    if (postRegistrationCopy) postRegistrationCopy.textContent = 'Modo de demonstração: a inscrição foi efetivada e os sete campos de acompanhamento estão disponíveis para atualização.';
+    if (postRegistrationStatus) {
+      postRegistrationStatus.className = 'status-badge status-success';
+      postRegistrationStatus.innerHTML = '<span></span> Cadastrado';
+    }
+    refreshObligationSummary();
+    showToast('Painel pós-cadastro habilitado.');
+    enabledObligations.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+document.querySelectorAll('[data-obligation-file]').forEach(input => input.addEventListener('change', () => {
+  const row = input.closest('[data-obligation-card]');
+  const feedback = row?.querySelector('[data-obligation-feedback]');
+  const status = row?.querySelector('[data-obligation-status]');
+  const selectedFile = input.files[0];
+  if (!selectedFile) return;
+  if (feedback) feedback.textContent = selectedFile.name;
+  if (status) {
+    status.textContent = 'Arquivo selecionado';
+    status.className = 'row-status success';
+  }
+  refreshObligationSummary();
+  showToast(`Arquivo da obrigação ${row?.dataset.obligationCard || ''} selecionado.`);
+}));
+
+if (enabledObligations) enabledObligations.querySelectorAll('select').forEach(select => select.addEventListener('change', () => {
+  const row = select.closest('[data-obligation-card]');
+  const status = row?.querySelector('[data-obligation-status]');
+  if (status) {
+    status.textContent = select.value;
+    status.className = `row-status ${select.value === 'Aprovado' ? 'success' : select.value === 'Enviado' ? 'warning' : 'neutral'}`;
+  }
+  refreshObligationSummary();
+}));
+
+const saveObligations = document.querySelector('[data-obligations-save]');
+if (saveObligations) saveObligations.addEventListener('click', () => openModal('salvar-obrigacoes'));
 
 const municipalitySearch = document.querySelector('#municipality-search');
 const publicStatus = document.querySelector('#public-status');

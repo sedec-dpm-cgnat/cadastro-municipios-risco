@@ -30,6 +30,7 @@ Depois abra [http://127.0.0.1:4173](http://127.0.0.1:4173).
 - atesto obrigatório para municípios indicados;
 - atesto exibido condicionalmente apenas para municípios presentes na lista vigente de indicados;
 - área pós-efetivação com os sete campos de acompanhamento do art. 5º;
+- painel habilitado pós-cadastro com upload individual, status, data de atualização e observação para cada obrigação;
 - mapa esquemático com camadas de risco e integração com bases técnicas;
 - consulta pública de transparência;
 - painel público com mapa nacional demonstrativo, filtros por situação e downloads CSV separados;
