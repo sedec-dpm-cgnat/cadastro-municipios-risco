@@ -190,7 +190,8 @@ Após correção:
 5. clicar em “Entrar com gov.br” e mostrar que a prefeitura vê somente o próprio fluxo;
 6. demonstrar o upload único, ressaltando que o município não precisa preencher sete formulários para iniciar a inscrição;
 7. tentar avançar sem o atesto e mostrar a validação obrigatória;
-8. abrir “Obrigações” para mostrar a separação entre cadastro inicial e obrigações continuadas.
+8. na etapa de revisão, clicar em **Efetivar cadastro demonstrativo** e observar a abertura automática do painel pós-cadastro;
+9. abrir “Obrigações” para mostrar a separação entre cadastro inicial e obrigações continuadas.
 
 ## 8. Próximas entregas
 

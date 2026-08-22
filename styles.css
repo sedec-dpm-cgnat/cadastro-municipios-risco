@@ -292,3 +292,5 @@ button { cursor: pointer; }
 .enabled-obligations-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 @media (max-width: 930px) { .enabled-obligation-controls { grid-template-columns: 1fr 1fr; }.obligation-upload-field { grid-column: 1 / -1; } }
 @media (max-width: 600px) { .enabled-obligations-panel { padding: 15px; }.enabled-obligation-head { align-items: start; flex-wrap: wrap; }.enabled-obligation-head .row-status { margin-left: 40px; }.enabled-obligation-controls { grid-template-columns: 1fr; }.obligation-upload-field { grid-column: auto; }.enabled-obligations-footer { align-items: start; flex-direction: column; }.enabled-obligations-footer .button { width: 100%; } }
+.post-registration-lock .button { white-space: nowrap; }
+@media (max-width: 700px) { .post-registration-lock .button { margin-left: 38px; } }

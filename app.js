@@ -8,6 +8,7 @@ let currentStep = 1;
 let toastTimer;
 let transparencyFilter = 'all';
 let selectedRole = null;
+let registrationEffective = false;
 
 const roleProfiles = {
   municipal: {
@@ -145,6 +146,8 @@ function setStep(step) {
     if (itemStep < currentStep) button.querySelector('span').textContent = '✓';
     else button.querySelector('span').textContent = itemStep;
   });
+  const stepNextLabel = document.querySelector('#step-next-label');
+  if (stepNextLabel) stepNextLabel.textContent = currentStep === 4 ? 'Efetivar cadastro demonstrativo' : 'Salvar e continuar';
   showToast(`Etapa ${currentStep} de 4 selecionada.`);
 }
 
@@ -211,7 +214,7 @@ document.querySelector('[data-step-next]').addEventListener('click', () => {
     return;
   }
   if (currentStep < 4) setStep(currentStep + 1);
-  else openModal('enviar');
+  else enablePostRegistrationPanel({ navigate: true });
 });
 document.querySelector('[data-step-prev]').addEventListener('click', () => setStep(currentStep - 1));
 
@@ -236,6 +239,7 @@ if (docFilter) docFilter.addEventListener('change', () => {
 });
 
 const enableObligations = document.querySelector('#enable-obligations');
+const simulateRegistration = document.querySelector('#simulate-registration');
 const enabledObligations = document.querySelector('#enabled-obligations');
 const postRegistrationCopy = document.querySelector('#post-registration-copy');
 const postRegistrationStatus = document.querySelector('#post-registration-status');
@@ -254,20 +258,23 @@ function refreshObligationSummary() {
   if (documentScoreTrack) documentScoreTrack.style.width = `${rows.length ? (completed / rows.length) * 100 : 0}%`;
   if (documentSummaryFoot) documentSummaryFoot.innerHTML = `<span><i class="mini-dot green"></i> ${completed} liberadas</span><span><i class="mini-dot orange"></i> ${rows.length - completed} aguardando</span><span>Atualização anual após a inscrição</span>`;
 }
-if (enableObligations && enabledObligations) {
-  enableObligations.addEventListener('click', () => {
-    enabledObligations.hidden = false;
-    enableObligations.style.display = 'none';
-    if (postRegistrationCopy) postRegistrationCopy.textContent = 'Modo de demonstração: a inscrição foi efetivada e os sete campos de acompanhamento estão disponíveis para atualização.';
-    if (postRegistrationStatus) {
-      postRegistrationStatus.className = 'status-badge status-success';
-      postRegistrationStatus.innerHTML = '<span></span> Cadastrado';
-    }
-    refreshObligationSummary();
-    showToast('Painel pós-cadastro habilitado.');
-    enabledObligations.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
+function enablePostRegistrationPanel({ navigate = false } = {}) {
+  registrationEffective = true;
+  if (enabledObligations) enabledObligations.hidden = false;
+  if (enableObligations) enableObligations.style.display = 'none';
+  if (simulateRegistration) simulateRegistration.style.display = 'none';
+  if (postRegistrationCopy) postRegistrationCopy.textContent = 'Modo de demonstração: a inscrição foi efetivada e os sete campos de acompanhamento estão disponíveis para atualização.';
+  if (postRegistrationStatus) {
+    postRegistrationStatus.className = 'status-badge status-success';
+    postRegistrationStatus.innerHTML = '<span></span> Cadastrado';
+  }
+  refreshObligationSummary();
+  if (navigate) openView('documentos');
+  showToast('Cadastro efetivado na simulação. Painel pós-cadastro liberado.');
+  enabledObligations?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+if (enableObligations) enableObligations.addEventListener('click', () => enablePostRegistrationPanel());
+if (simulateRegistration) simulateRegistration.addEventListener('click', () => enablePostRegistrationPanel({ navigate: true }));
 
 document.querySelectorAll('[data-obligation-file]').forEach(input => input.addEventListener('change', () => {
   const row = input.closest('[data-obligation-card]');
