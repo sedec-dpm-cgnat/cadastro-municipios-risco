@@ -29,6 +29,19 @@ A porta de entrada apresenta quatro perfis, com permissões e painéis próprios
 
 O acesso público geral permanece aberto e não exige autenticação. O perfil selecionado deve limitar menus, dados pessoais e ações conforme a função institucional.
 
+## 1.2 Princípio de navegação
+
+A navegação deve ser direta e igual em todas as telas, com no máximo seis destinos principais:
+
+1. **Início:** resumo do município e próxima ação;
+2. **Meu cadastro:** etapas de identificação, comprovação, manifestação e envio;
+3. **Obrigações:** acompanhamento posterior à efetivação;
+4. **Mapa:** leitura territorial e camadas de risco;
+5. **Transparência:** listas públicas, filtros e downloads;
+6. **Visão nacional:** acompanhamento agregado para Estado, União e controle.
+
+Ajuda, formatos e canais de apoio ficam em uma área secundária para não competir com a ação principal do usuário.
+
 ## 2. Fluxo municipal simplificado
 
 ### Acesso
@@ -162,7 +175,7 @@ Após correção:
 5. clicar em “Entrar com gov.br” e mostrar que a prefeitura vê somente o próprio fluxo;
 6. demonstrar o upload único, ressaltando que o município não precisa preencher sete formulários para iniciar a inscrição;
 7. tentar avançar sem o atesto e mostrar a validação obrigatória;
-8. abrir “Após efetivação” para mostrar a separação entre cadastro inicial e obrigações continuadas.
+8. abrir “Obrigações” para mostrar a separação entre cadastro inicial e obrigações continuadas.
 
 ## 8. Próximas entregas
 
