@@ -642,3 +642,197 @@ if (territoryMunicipality) territoryMunicipality.addEventListener('change', () =
 if (territoryUf) territoryUf.addEventListener('change', () => updateTerritorySource());
 document.querySelector('[data-territory-relate]')?.addEventListener('click', () => openModal('integrar'));
 updateTerritorySource();
+
+/* Mapa territorial Leaflet: malhas oficiais IBGE, com fallback para a prévia local. */
+const territoryLeafletHost = document.querySelector('#territory-leaflet-map');
+const territoryMapCanvas = territoryLeafletHost?.closest('.map-canvas-large');
+const territoryMapFallback = territoryMapCanvas?.querySelector(':scope > svg');
+const territoryUfCodes = { AC: 12, AL: 27, AP: 16, AM: 13, BA: 29, CE: 23, DF: 53, ES: 32, GO: 52, MA: 21, MT: 51, MS: 50, MG: 31, PA: 15, PB: 25, PR: 41, PE: 26, PI: 22, RJ: 33, RN: 24, RS: 43, RO: 11, RR: 14, SC: 42, SP: 35, SE: 28, TO: 17 };
+const territoryUfNames = { AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará', DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão', MT: 'Mato Grosso', MS: 'Mato Grosso do Sul', MG: 'Minas Gerais', PA: 'Pará', PB: 'Paraíba', PR: 'Paraná', PE: 'Pernambuco', PI: 'Piauí', RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte', RS: 'Rio Grande do Sul', RO: 'Rondônia', RR: 'Roraima', SC: 'Santa Catarina', SP: 'São Paulo', SE: 'Sergipe', TO: 'Tocantins' };
+const territoryIbgeBase = 'https://servicodados.ibge.gov.br/api/v3/malhas';
+let territoryLeafletMap = null;
+let territoryStateLayer = null;
+let territoryMunicipalityLayer = null;
+let territorySelectedLayer = null;
+let territoryLoadedUf = null;
+let territoryLoadSequence = 0;
+let territoryMunicipalityNames = new Map();
+let territoryFallbackZoom = 1;
+
+if (territoryUf) {
+  const currentUf = territoryUf.value || 'SP';
+  Object.entries(territoryUfNames).forEach(([uf, name]) => {
+    if (territoryUf.querySelector(`option[value="${uf}"]`)) return;
+    territoryUf.append(new Option(`${uf} — ${name}`, uf));
+  });
+  territoryUf.value = currentUf;
+}
+
+function normalizeTerritoryText(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+function territoryFeatureCode(feature) {
+  return String(feature?.properties?.codarea || feature?.id || '').replace(/\.0$/, '');
+}
+
+function territoryMunicipalityName(code) {
+  return territoryMunicipalityNames.get(String(code)) || `Município ${code}`;
+}
+
+function requestTerritoryJson(url) {
+  if (typeof window.fetch !== 'function') return Promise.reject(new Error('fetch indisponível no ambiente de demonstração'));
+  return window.fetch(url, { mode: 'cors' }).then(response => {
+    if (!response.ok) throw new Error(`IBGE respondeu ${response.status}`);
+    return response.json();
+  });
+}
+
+function showTerritoryMapFallback(reason = '') {
+  territoryMapCanvas?.classList.remove('is-leaflet');
+  territoryLeafletHost?.classList.remove('is-live');
+  const notice = territoryMapCanvas?.querySelector('.territory-map-fallback-notice');
+  if (notice) notice.remove();
+  if (territoryMapAttribution && reason) territoryMapAttribution.textContent = `Prévia local · malha IBGE será carregada quando a conexão estiver disponível`;
+  if (reason && territoryMapCanvas) {
+    const fallbackNotice = document.createElement('div');
+    fallbackNotice.className = 'territory-map-fallback-notice';
+    fallbackNotice.innerHTML = '<strong>Modo de contingência</strong><small>O mapa ilustrado continua disponível. Em um navegador com conexão, o Leaflet carregará as poligonais oficiais do IBGE.</small>';
+    territoryMapCanvas.append(fallbackNotice);
+  }
+}
+
+function applyTerritoryFallbackZoom(action) {
+  if (!territoryMapFallback) return;
+  if (action === 'fit') territoryFallbackZoom = 1;
+  if (action === 'zoom-in') territoryFallbackZoom = Math.min(1.8, territoryFallbackZoom + .15);
+  if (action === 'zoom-out') territoryFallbackZoom = Math.max(.72, territoryFallbackZoom - .15);
+  territoryMapFallback.style.transformOrigin = '50% 50%';
+  territoryMapFallback.style.transform = `scale(${territoryFallbackZoom})`;
+}
+
+function addTerritoryBoundaryToggles() {
+  const layerList = territoryMapCanvas?.parentElement?.querySelector('.map-sidebar .layer-list');
+  if (!layerList || layerList.querySelector('[data-territory-layer="municipalities"]')) return;
+  layerList.insertAdjacentHTML('afterbegin', '<label class="layer-item"><input type="checkbox" checked data-territory-layer="municipalities" /><span class="layer-swatch territory-boundary"></span><div><strong>Limites municipais IBGE</strong><small>Malha oficial · divisas e códigos municipais</small></div></label><label class="layer-item"><input type="checkbox" checked data-territory-layer="state" /><span class="layer-swatch territory-state-boundary"></span><div><strong>Limite estadual IBGE</strong><small>Contorno da UF consultada</small></div></label>');
+  layerList.querySelector('[data-territory-layer="municipalities"]')?.addEventListener('change', event => {
+    if (!territoryLeafletMap || !territoryMunicipalityLayer) return;
+    if (event.currentTarget.checked) territoryMunicipalityLayer.addTo(territoryLeafletMap);
+    else territoryLeafletMap.removeLayer(territoryMunicipalityLayer);
+  });
+  layerList.querySelector('[data-territory-layer="state"]')?.addEventListener('change', event => {
+    if (!territoryLeafletMap || !territoryStateLayer) return;
+    if (event.currentTarget.checked) territoryStateLayer.addTo(territoryLeafletMap);
+    else territoryLeafletMap.removeLayer(territoryStateLayer);
+  });
+}
+
+function updateTerritoryMunicipalityStyles() {
+  if (!territoryMunicipalityLayer) return;
+  const selectedCode = territorySelectedLayer ? territoryFeatureCode(territorySelectedLayer.feature) : '';
+  territoryMunicipalityLayer.eachLayer(layer => {
+    const code = territoryFeatureCode(layer.feature);
+    layer.setStyle(code === selectedCode ? { fillColor: '#2f8f85', fillOpacity: .72, color: '#123c54', weight: 2.4, opacity: 1 } : { fillColor: '#fff', fillOpacity: .33, color: '#678997', weight: .8, opacity: .82 });
+  });
+}
+
+function selectTerritoryMunicipality(feature, layer, { focus = true } = {}) {
+  const code = territoryFeatureCode(feature);
+  const name = territoryMunicipalityName(code);
+  territorySelectedLayer = layer;
+  if (territoryMunicipality && name && !name.startsWith('Município ')) territoryMunicipality.value = name;
+  updateTerritorySource();
+  updateTerritoryMunicipalityStyles();
+  layer?.bringToFront?.();
+  if (territoryStateLayer) territoryStateLayer.bringToBack?.();
+  layer?.bindPopup(`<strong>${name}</strong><br><span>Código IBGE: ${code}</span><br><span>${territoryUf?.value || ''} · malha municipal oficial</span>`).openPopup();
+  if (focus && territoryLeafletMap && layer?.getBounds?.().isValid()) territoryLeafletMap.fitBounds(layer.getBounds(), { padding: [35, 35], maxZoom: 11 });
+}
+
+function findTerritoryMunicipalityFeature(features) {
+  const query = normalizeTerritoryText(territoryMunicipality?.value || '');
+  if (!query) return null;
+  return features.find(feature => normalizeTerritoryText(territoryMunicipalityName(territoryFeatureCode(feature))) === query) || null;
+}
+
+async function loadTerritoryLeafletMap({ force = false, focus = true } = {}) {
+  if (!territoryLeafletHost || !territoryMapCanvas) return;
+  addTerritoryBoundaryToggles();
+  if (!window.L || typeof window.fetch !== 'function') {
+    showTerritoryMapFallback('leaflet ou fetch indisponível');
+    return;
+  }
+  const uf = territoryUf?.value || 'SP';
+  const stateCode = territoryUfCodes[uf];
+  if (!stateCode) return;
+  if (!territoryLeafletMap) {
+    territoryLeafletMap = window.L.map(territoryLeafletHost, { zoomControl: true, minZoom: 4, maxZoom: 18, preferCanvas: true }).setView([-15.8, -47.9], 4);
+    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors · limites IBGE' }).addTo(territoryLeafletMap);
+  }
+  territoryLeafletHost.querySelector('.territory-map-loading')?.remove();
+  const loading = document.createElement('div');
+  loading.className = 'territory-map-loading';
+  loading.innerHTML = `<div><strong>Carregando malha oficial ${uf}</strong><small>Buscando limites estaduais e municipais no serviço cartográfico do IBGE.</small></div>`;
+  territoryLeafletHost.append(loading);
+  territoryMapCanvas.classList.add('is-leaflet');
+  territoryLeafletMap.invalidateSize();
+  const sequence = ++territoryLoadSequence;
+  if (!force && territoryLoadedUf === uf && territoryMunicipalityLayer) {
+    loading.remove();
+    territoryLeafletMap.invalidateSize();
+    return;
+  }
+  try {
+    const stateUrl = `${territoryIbgeBase}/estados/${stateCode}?formato=application/vnd.geo+json&resolucao=2`;
+    const municipalitiesUrl = `${territoryIbgeBase}/estados/${stateCode}?formato=application/vnd.geo+json&resolucao=2&intrarregiao=municipio`;
+    const namesUrl = `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateCode}/municipios`;
+    const [stateGeoJson, municipalitiesGeoJson, names] = await Promise.all([requestTerritoryJson(stateUrl), requestTerritoryJson(municipalitiesUrl), requestTerritoryJson(namesUrl)]);
+    if (sequence !== territoryLoadSequence) return;
+    territoryMunicipalityNames = new Map((Array.isArray(names) ? names : []).map(item => [String(item.id), item.nome]));
+    territoryStateLayer?.remove?.();
+    territoryMunicipalityLayer?.remove?.();
+    territoryStateLayer = window.L.geoJSON(stateGeoJson, { style: { className: 'territory-state-polygon', fillColor: '#d9ebe5', fillOpacity: .14, color: '#244c63', weight: 2.8, opacity: .95 } }).addTo(territoryLeafletMap);
+    territoryMunicipalityLayer = window.L.geoJSON(municipalitiesGeoJson, {
+      style: feature => ({ className: 'territory-municipality-polygon', fillColor: '#fff', fillOpacity: .33, color: '#678997', weight: .8, opacity: .82 }),
+      onEachFeature: (feature, layer) => {
+        const code = territoryFeatureCode(feature);
+        const name = territoryMunicipalityName(code);
+        layer.bindTooltip(`${name} · ${uf}`, { sticky: true, direction: 'top', className: 'territory-map-label' });
+        layer.on({ click: () => selectTerritoryMunicipality(feature, layer, { focus: true }) });
+      }
+    }).addTo(territoryLeafletMap);
+    territoryLoadedUf = uf;
+    const selectedFeature = findTerritoryMunicipalityFeature(municipalitiesGeoJson.features || []);
+    const selectedLayer = selectedFeature ? territoryMunicipalityLayer.getLayers().find(layer => territoryFeatureCode(layer.feature) === territoryFeatureCode(selectedFeature)) : null;
+    territorySelectedLayer = null;
+    updateTerritoryMunicipalityStyles();
+    territoryLeafletMap.fitBounds(territoryStateLayer.getBounds(), { padding: [22, 22] });
+    if (selectedLayer) selectTerritoryMunicipality(selectedFeature, selectedLayer, { focus });
+    if (territoryMapStatus) territoryMapStatus.textContent = `${(municipalitiesGeoJson.features || []).length} municípios · ${territoryUfNames[uf]}`;
+    if (territoryMapAttribution) territoryMapAttribution.textContent = `Malha IBGE · ${territoryUfNames[uf]} · ${new Date().getFullYear()}`;
+    loading.remove();
+    territoryLeafletMap.invalidateSize();
+  } catch (error) {
+    console.warn('Mapa Leaflet/IBGE indisponível; mantendo a prévia local.', error);
+    loading.remove();
+    showTerritoryMapFallback(error.message);
+  }
+}
+
+document.querySelectorAll('[data-territory-map-control]').forEach(control => control.addEventListener('click', () => {
+  const action = control.dataset.territoryMapControl;
+  if (action === 'layers') { document.querySelector('.map-sidebar')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return; }
+  if (!territoryLeafletMap) {
+    applyTerritoryFallbackZoom(action);
+    showToast(action === 'fit' ? 'Prévia territorial enquadrada.' : 'Zoom aplicado à prévia territorial.');
+    return;
+  }
+  if (action === 'zoom-in') territoryLeafletMap.zoomIn();
+  if (action === 'zoom-out') territoryLeafletMap.zoomOut();
+  if (action === 'fit') loadTerritoryLeafletMap({ force: false, focus: true });
+}));
+
+if (territorySearch) territorySearch.addEventListener('click', () => loadTerritoryLeafletMap({ force: true, focus: true }));
+if (territoryUf) territoryUf.addEventListener('change', () => loadTerritoryLeafletMap({ force: true, focus: false }));
+if (territoryMunicipality) territoryMunicipality.addEventListener('keydown', event => { if (event.key === 'Enter') loadTerritoryLeafletMap({ force: true, focus: true }); });
+document.querySelectorAll('[data-view-target="mapa"]').forEach(trigger => trigger.addEventListener('click', () => window.setTimeout(() => { territoryLeafletMap?.invalidateSize(); loadTerritoryLeafletMap({ force: false, focus: false }); }, 80)));

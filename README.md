@@ -32,7 +32,9 @@ Depois abra [http://127.0.0.1:4173](http://127.0.0.1:4173).
 - atesto exibido condicionalmente apenas para municípios presentes na lista vigente de indicados;
 - área pós-efetivação com os sete campos de acompanhamento do art. 5º;
 - painel habilitado pós-cadastro com upload individual, status, data de atualização e observação para cada obrigação;
-- mapa esquemático com camadas de risco e integração com bases técnicas;
+- mapa territorial Leaflet com zoom, enquadramento e poligonais oficiais de estados e municípios consultados;
+- malhas IBGE carregadas por UF e município, com destaque, código IBGE, popups e camadas ligáveis/desligáveis;
+- prévia temática local preservada como contingência quando a CDN ou o serviço cartográfico estiverem indisponíveis;
 - consulta pública de transparência;
 - painel público com mapa nacional demonstrativo, filtros por situação e downloads CSV separados;
 - mapa do Brasil com geometria cartográfica real, hachura do universo de 2.095 indicados e cinco pontos verdes de cadastros efetivados;

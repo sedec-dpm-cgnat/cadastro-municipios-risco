@@ -165,8 +165,9 @@ Sugestão de cartões de apoio:
 - **API:** serviço HTTP responsável por autenticação, cadastro, upload, análise, transparência e auditoria;
 - **Banco:** MySQL de testes na VPS Hostinger;
 - **Arquivos:** diretório privado da VPS ou armazenamento compatível com S3, sempre com cópia do checksum e metadados no banco;
-- **Mapa:** Leaflet ou OpenLayers na versão integrada; o protótipo atual usa mapa ilustrativo sem dependência externa;
-- **Integração cartográfica:** referência ao catálogo de produtos SGB/CPRM e, na versão completa, consulta de disponibilidade por estado/município;
+- **Mapa:** Leaflet no protótipo e na versão integrada, com zoom nativo, enquadramento e controle de camadas;
+- **Malhas administrativas:** serviço de malhas do IBGE para desenhar a poligonal da UF, as divisas municipais e o município selecionado por código IBGE;
+- **Integração cartográfica:** referência ao catálogo de produtos SGB/CPRM e, na versão completa, consulta de disponibilidade por estado/município, sobrepondo os produtos temáticos sem confundi-los com os limites administrativos;
 - **Autenticação:** OAuth/OIDC gov.br, com credenciais somente no ambiente do servidor.
 
 ### Estados do processo
