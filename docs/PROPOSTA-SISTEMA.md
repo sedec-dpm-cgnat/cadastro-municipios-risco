@@ -130,6 +130,12 @@ O mapa nacional terá três camadas principais:
 
 Ao clicar em um município, o mapa abre um cartão com nome, UF, código IBGE, situação, data da última atualização e link para a ficha pública. O visitante poderá destacar apenas indicados, cadastrados ou processos em preenchimento. A proposta mantém a possibilidade de integrar camadas do SGB, CEMADEN, ANA, IBGE e bases municipais.
 
+### Evolução da metodologia de indicação
+
+O portal deve explicar que a lista publicada representa a metodologia técnica vigente e que seus critérios podem ser aperfeiçoados e revisados conforme os estudos avancem. A definição de um índice poderá apoiar futuras atualizações metodológicas, sempre com comunicação da versão, data e origem dos critérios utilizados.
+
+Como referência de pesquisa e experimentação, o portal poderá apontar para o [ICPM — plataforma preliminar de testes para estudos referentes à definição do índice](https://icpm.dpm-sedec-sas.tech/). Essa plataforma deve ser apresentada como ambiente preliminar de estudos, sem substituir a lista oficial da Casa Civil, o Cadastro Nacional ou as fontes normativas do processo.
+
 ## 5. Apoio da União e dos Estados
 
 O sistema não deve transformar apoio técnico em documento obrigatório. Ele deve funcionar como uma área de orientação com links, modelos e canais. O art. 4º prevê apoio ao município indicado para o levantamento dos dados de risco, e o art. 6º prevê apoio da União e dos Estados na execução das ações do art. 5º, conforme disponibilidade orçamentária e financeira.
