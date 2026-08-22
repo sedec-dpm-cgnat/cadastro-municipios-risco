@@ -18,11 +18,22 @@ O desenho separa três situações que não devem ser confundidas:
 - **Em preenchimento ou em análise:** possui processo municipal aberto;
 - **Cadastrado:** inscrição efetivada na base oficial.
 
+## 1.1 Perfis de acesso
+
+A porta de entrada apresenta quatro perfis, com permissões e painéis próprios:
+
+- **Município:** inscrição, comprovação, manifestação prévia e obrigações pós-efetivação;
+- **Estado:** acompanhamento regional dos municípios, apoio técnico e evolução das inscrições;
+- **União:** gestão do universo nacional, indicações, análises, notificações e dados agregados;
+- **Órgãos de controle e fiscalização:** consulta institucional, fichas públicas, documentos disponíveis e trilha de auditoria, para CGU, MPU, Tribunais e órgãos habilitados.
+
+O acesso público geral permanece aberto e não exige autenticação. O perfil selecionado deve limitar menus, dados pessoais e ações conforme a função institucional.
+
 ## 2. Fluxo municipal simplificado
 
 ### Acesso
 
-O usuário seleciona “Entrar com gov.br”. O sistema identifica o município, o CPF do responsável e o perfil de acesso. A consulta pública continua disponível sem login.
+O usuário seleciona o perfil e, quando aplicável, entra com gov.br. O sistema identifica o município, o CPF do responsável e as permissões institucionais. A consulta pública continua disponível sem login.
 
 ### Cadastro inicial
 
@@ -81,7 +92,9 @@ Cada item terá:
 
 ### Consulta pública
 
-A página pública deve abrir sem login e oferecer filtros por UF, município, código IBGE e situação. A ficha pública deve apresentar:
+A página pública deve abrir sem login e começar por uma explicação simples: indicação é identificação técnica; cadastro é inscrição efetivada; transparência é o acompanhamento público das duas camadas. Ela deve oferecer filtros por UF, município, código IBGE e situação, além de downloads separados para as listas de indicados e cadastrados em CSV/ODS.
+
+A ficha pública deve apresentar:
 
 - origem da indicação e nota técnica de referência;
 - versão e data da lista técnica;
@@ -102,7 +115,7 @@ O mapa nacional terá três camadas principais:
 - verde/teal: municípios cadastrados;
 - vermelho discreto: cadastro devolvido ou com pendência crítica.
 
-Ao clicar em um município, o mapa abre um cartão com nome, UF, código IBGE, situação, data da última atualização e link para a ficha pública. A proposta mantém a possibilidade de integrar camadas do SGB, CEMADEN, ANA, IBGE e bases municipais.
+Ao clicar em um município, o mapa abre um cartão com nome, UF, código IBGE, situação, data da última atualização e link para a ficha pública. O visitante poderá destacar apenas indicados, cadastrados ou processos em preenchimento. A proposta mantém a possibilidade de integrar camadas do SGB, CEMADEN, ANA, IBGE e bases municipais.
 
 ## 5. Apoio da União e dos Estados
 
@@ -142,12 +155,14 @@ Após correção:
 
 ## 7. Dicas para apresentação
 
-1. Começar pela tela de transparência, mostrando que o cidadão consulta sem login;
-2. clicar em “Entrar com gov.br” e mostrar que a prefeitura vê somente o próprio fluxo;
-3. demonstrar o upload único, ressaltando que o município não precisa preencher sete formulários para iniciar a inscrição;
-4. tentar avançar sem o atesto e mostrar a validação obrigatória;
-5. abrir “Após efetivação” para mostrar a separação entre cadastro inicial e obrigações continuadas;
-6. finalizar no mapa, alternando Indicados, Em análise e Cadastrados.
+1. Começar pela explicação “Indicação, cadastro e transparência” na tela inicial;
+2. abrir a transparência sem login, alternando as camadas do mapa;
+3. baixar separadamente a lista de indicados e a de cadastrados;
+4. selecionar cada um dos quatro perfis e mostrar que cada painel tem uma finalidade;
+5. clicar em “Entrar com gov.br” e mostrar que a prefeitura vê somente o próprio fluxo;
+6. demonstrar o upload único, ressaltando que o município não precisa preencher sete formulários para iniciar a inscrição;
+7. tentar avançar sem o atesto e mostrar a validação obrigatória;
+8. abrir “Após efetivação” para mostrar a separação entre cadastro inicial e obrigações continuadas.
 
 ## 8. Próximas entregas
 

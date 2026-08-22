@@ -18,12 +18,15 @@ Depois abra [http://127.0.0.1:4173](http://127.0.0.1:4173).
 
 - painel municipal com o município de São Sebastião/SP como cenário demonstrativo;
 - tela inicial de acesso municipal com fluxo simulado de autenticação gov.br;
+- seleção de quatro perfis: município, estado, União e órgãos de controle/fiscalização;
+- explicação visual da diferença entre indicação técnica, cadastro efetivado e transparência;
 - fluxo de cadastro inicial em quatro etapas: identificação, comprovação, manifestação prévia e revisão;
 - upload único da comprovação de áreas de risco, com ZIP como formato preferencial;
 - atesto obrigatório para municípios indicados;
 - área pós-efetivação com os sete campos de acompanhamento do art. 5º;
 - mapa esquemático com camadas de risco e integração com bases técnicas;
 - consulta pública de transparência;
+- painel público com mapa nacional demonstrativo, filtros por situação e downloads CSV separados;
 - separação visual entre municípios indicados, cadastrados e processos em preenchimento;
 - visão nacional dos municípios indicados e da fila de notificação do Rio Grande do Sul;
 - interações simuladas, sem envio de dados reais.

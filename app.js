@@ -7,6 +7,50 @@ const toast = document.querySelector('#toast');
 let currentStep = 1;
 let toastTimer;
 let transparencyFilter = 'all';
+let selectedRole = 'municipal';
+
+const roleProfiles = {
+  municipal: {
+    title: 'Perfil municipal selecionado',
+    copy: 'Continue para cadastrar ou acompanhar um município.',
+    login: 'Entrar com gov.br',
+    destination: 'dashboard',
+    toast: 'Acesso municipal simulado para esta demonstração.',
+    profile: 'Prefeitura de São Sebastião',
+    profileType: 'Gestor municipal',
+    topbar: 'Portal municipal'
+  },
+  estadual: {
+    title: 'Perfil estadual selecionado',
+    copy: 'Acompanhe os municípios do estado, a evolução das inscrições e os pedidos de apoio.',
+    login: 'Acessar painel estadual',
+    destination: 'indicados',
+    toast: 'Acesso estadual simulado para esta demonstração.',
+    profile: 'Defesa Civil do Estado de São Paulo',
+    profileType: 'Gestão estadual',
+    topbar: 'Portal estadual'
+  },
+  federal: {
+    title: 'Perfil federal selecionado',
+    copy: 'Monitore o universo técnico, as indicações, as análises e a visão nacional do Cadastro.',
+    login: 'Acessar painel federal',
+    destination: 'indicados',
+    toast: 'Acesso federal simulado para esta demonstração.',
+    profile: 'SEDEC · DPM',
+    profileType: 'Gestão federal',
+    topbar: 'Portal federal'
+  },
+  controle: {
+    title: 'Perfil de controle selecionado',
+    copy: 'Consulte dados públicos, trilhas de atualização e documentos do Cadastro para controle e fiscalização.',
+    login: 'Acessar painel de controle',
+    destination: 'transparencia',
+    toast: 'Acesso institucional simulado para esta demonstração.',
+    profile: 'Órgão de controle e fiscalização',
+    profileType: 'Consulta institucional',
+    topbar: 'Portal de controle'
+  }
+};
 
 const actionMessages = {
   ajuda: ['Central de ajuda', 'Aqui entram os canais de orientação, perguntas frequentes e o contato técnico da equipe responsável pelo cadastro.'],
@@ -62,6 +106,13 @@ function showToast(message) {
 function unlockPortal(destination = 'dashboard', message = 'Acesso gov.br simulado para esta demonstração.') {
   document.querySelector('#auth-screen').style.display = 'none';
   document.querySelector('#app-frame').classList.add('is-unlocked');
+  const profile = roleProfiles[selectedRole] || roleProfiles.municipal;
+  const topbarKicker = document.querySelector('.topbar-kicker');
+  const profileName = document.querySelector('.profile-text strong');
+  const profileType = document.querySelector('.profile-text small');
+  if (topbarKicker) topbarKicker.textContent = profile.topbar;
+  if (profileName) profileName.textContent = profile.profile;
+  if (profileType) profileType.textContent = profile.profileType;
   openView(destination);
   showToast(message);
 }
@@ -85,7 +136,24 @@ navItems.forEach(item => item.addEventListener('click', () => {
   if (item.dataset.stepGo) setStep(item.dataset.stepGo);
 }));
 
-document.querySelector('#govbr-login').addEventListener('click', () => unlockPortal());
+document.querySelectorAll('[data-access-role]').forEach(button => button.addEventListener('click', () => {
+  selectedRole = button.dataset.accessRole;
+  const profile = roleProfiles[selectedRole];
+  document.querySelectorAll('[data-access-role]').forEach(item => {
+    const isSelected = item === button;
+    item.classList.toggle('is-selected', isSelected);
+    item.setAttribute('aria-selected', String(isSelected));
+  });
+  document.querySelector('#selected-role-note strong').textContent = profile.title;
+  document.querySelector('#selected-role-note span').textContent = profile.copy;
+  document.querySelector('#login-button-label').textContent = profile.login;
+  document.querySelector('#auth-login-copy').textContent = profile.copy;
+}));
+
+document.querySelector('#govbr-login').addEventListener('click', () => {
+  const profile = roleProfiles[selectedRole] || roleProfiles.municipal;
+  unlockPortal(profile.destination, profile.toast);
+});
 document.querySelector('#public-access').addEventListener('click', () => unlockPortal('transparencia', 'Consulta pública aberta sem autenticação.'));
 
 document.querySelectorAll('[data-step-nav]').forEach(button => button.addEventListener('click', () => setStep(button.dataset.stepNav)));
@@ -158,6 +226,48 @@ document.querySelectorAll('[data-transparency-filter]').forEach(button => button
   const labels = { all: 'Visão geral', indicated: 'Municípios indicados', registered: 'Municípios cadastrados', 'in-progress': 'Processos em preenchimento' };
   showToast(`${labels[transparencyFilter]} selecionados.`);
 }));
+
+function setPublicMapFilter(filter) {
+  document.querySelectorAll('[data-public-map-filter]').forEach(button => button.classList.toggle('active', button.dataset.publicMapFilter === filter));
+  const points = [...document.querySelectorAll('.public-map-point')];
+  points.forEach(point => point.classList.toggle('is-dimmed', filter !== 'all' && point.dataset.mapCategory !== filter));
+  const visibleCount = filter === 'all' ? points.length : points.filter(point => point.dataset.mapCategory === filter).length;
+  const label = { all: 'municípios no recorte', indicated: 'indicados no recorte', registered: 'cadastrados no recorte', 'in-progress': 'processos no recorte' }[filter] || 'municípios no recorte';
+  const counter = document.querySelector('#map-counter');
+  if (counter) counter.textContent = `${visibleCount} ${label}`;
+}
+
+document.querySelectorAll('[data-public-map-filter]').forEach(button => button.addEventListener('click', () => {
+  setPublicMapFilter(button.dataset.publicMapFilter);
+  const labels = { all: 'Visão geral', indicated: 'Indicados', registered: 'Cadastrados', 'in-progress': 'Em preenchimento' };
+  showToast(`${labels[button.dataset.publicMapFilter]} destacados no mapa.`);
+}));
+
+function csvValue(value) {
+  return `"${String(value).replace(/"/g, '""')}"`;
+}
+
+function downloadMunicipalities(category) {
+  const rows = [...document.querySelectorAll('#municipality-table tr')].filter(row => category === 'all' || row.dataset.category === category);
+  const header = ['Município', 'Código IBGE', 'UF', 'Origem', 'Pedido de inscrição', 'Manifestação municipal', 'Aprovação / anuência', 'Documentos', 'Situação'];
+  const data = rows.map(row => {
+    const cells = [...row.querySelectorAll('td')];
+    return [cells[0]?.querySelector('strong')?.textContent.trim() || '', cells[0]?.querySelector('small')?.textContent.replace('IBGE', '').trim() || '', cells[1]?.textContent.trim() || '', cells[2]?.textContent.trim() || '', cells[3]?.textContent.trim() || '', cells[4]?.textContent.trim() || '', cells[5]?.textContent.trim() || '', cells[6]?.textContent.trim() || '', cells[7]?.textContent.trim() || ''];
+  });
+  const csv = `\uFEFF${[header, ...data].map(line => line.map(csvValue).join(';')).join('\r\n')}`;
+  const fileName = { indicated: 'municipios-indicados-cnm-risco.csv', registered: 'municipios-cadastrados-cnm-risco.csv', all: 'recorte-cnm-risco.csv' }[category] || 'dados-cnm-risco.csv';
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  showToast(`Download preparado: ${fileName}.`);
+}
+
+document.querySelectorAll('[data-download]').forEach(button => button.addEventListener('click', () => downloadMunicipalities(button.dataset.download)));
 
 document.querySelector('#global-search').addEventListener('keydown', event => {
   if (event.key !== 'Enter') return;

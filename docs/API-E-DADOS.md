@@ -7,6 +7,8 @@ GET /api/public/municipios?uf=SP&status=INDICADO
 GET /api/public/municipios/{ibge}
 GET /api/public/municipios/{ibge}/mapa
 GET /api/public/fontes
+GET /api/public/municipios/export?status=INDICADO&format=csv
+GET /api/public/municipios/export?status=CADASTRADO&format=csv
 ```
 
 As respostas públicas não devem expor CPF, e-mail pessoal, credenciais ou caminho físico dos arquivos.
@@ -25,6 +27,19 @@ POST /api/municipios/{id}/obrigacoes/{item}/documentos
 PATCH /api/municipios/{id}/obrigacoes/{item}
 GET  /api/municipios/{id}/auditoria
 ```
+
+## Perfis e autorização
+
+O token autenticado deve carregar o perfil institucional e o escopo de dados:
+
+| Perfil | Escopo principal |
+|---|---|
+| MUNICIPAL | próprio município e seus responsáveis autorizados |
+| ESTADUAL | municípios do estado e solicitações de apoio |
+| FEDERAL | visão nacional, indicações e análise técnica |
+| CONTROLE | consulta institucional, dados liberados e auditoria |
+
+O painel aberto não usa token e deve consumir apenas os endpoints públicos. Downloads devem ser gerados pelo servidor a partir da mesma consulta pública exibida na tela, com data, versão da base e origem dos dados no arquivo.
 
 ## Regras essenciais
 

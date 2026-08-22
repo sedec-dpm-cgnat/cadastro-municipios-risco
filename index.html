@@ -18,9 +18,17 @@
           <div><span>SEDEC · DPM</span><strong>CNM-RISCO</strong><small>Cadastro Nacional de Municípios</small></div>
         </div>
         <div class="auth-copy">
-          <div class="eyebrow">PORTAL NACIONAL · ACESSO MUNICIPAL</div>
+          <div class="eyebrow">PORTAL NACIONAL · ACESSOS INTEGRADOS</div>
           <h1>Informação organizada para uma prevenção mais <em>eficiente.</em></h1>
-          <p>O espaço do município para consultar sua indicação, enviar evidências e acompanhar a inscrição no Cadastro Nacional.</p>
+          <p>O Cadastro Nacional reúne, em uma linguagem simples, os municípios com áreas suscetíveis a deslizamentos, inundações bruscas e processos geológicos ou hidrológicos correlatos.</p>
+          <div class="auth-explainer">
+            <div class="explainer-intro"><span class="explainer-kicker">PENSE ASSIM</span><strong>Um mapa comum para prevenir melhor.</strong><small>A indicação orienta. O cadastro formaliza. A transparência acompanha.</small></div>
+            <div class="explainer-cards">
+              <article><span class="explainer-number">01</span><div><strong>Indicação</strong><small>Identificação técnica da União. Não é a mesma coisa que estar cadastrado.</small></div></article>
+              <article><span class="explainer-number">02</span><div><strong>Cadastro</strong><small>Inscrição efetivada pelo município, com comprovação e compromissos de prevenção.</small></div></article>
+              <article><span class="explainer-number">03</span><div><strong>Transparência</strong><small>Listas, mapa, situação e dados abertos para qualquer pessoa consultar.</small></div></article>
+            </div>
+          </div>
         </div>
         <div class="auth-highlights">
           <div><strong>2.095</strong><span>municípios indicados<br />no universo técnico</span></div>
@@ -31,13 +39,20 @@
       </div>
       <div class="auth-panel">
         <div class="auth-panel-mark">CN</div>
-        <div class="eyebrow">ACESSO SEGURO</div>
-        <h2>Entre com sua conta gov.br</h2>
-        <p>O acesso identifica o município e o responsável pelo preenchimento. A autenticação é feita no ambiente oficial gov.br.</p>
-        <button class="govbr-button" id="govbr-login"><span class="govbr-symbol">◎</span><span>Entrar com gov.br</span><span class="auth-arrow">→</span></button>
+        <div class="eyebrow">PORTAS DE ACESSO</div>
+        <h2>Escolha seu perfil</h2>
+        <p id="auth-login-copy">O acesso municipal identifica a prefeitura e o responsável pelo preenchimento. A autenticação será feita no ambiente oficial gov.br.</p>
+        <div class="access-role-grid" role="tablist" aria-label="Perfis de acesso">
+          <button class="access-role is-selected" data-access-role="municipal" role="tab" aria-selected="true"><span class="role-icon">⌂</span><span><strong>Município</strong><small>Inscrição e obrigações</small></span></button>
+          <button class="access-role" data-access-role="estadual" role="tab" aria-selected="false"><span class="role-icon">◈</span><span><strong>Estado</strong><small>Acompanhamento regional</small></span></button>
+          <button class="access-role" data-access-role="federal" role="tab" aria-selected="false"><span class="role-icon">✦</span><span><strong>União</strong><small>Gestão nacional</small></span></button>
+          <button class="access-role" data-access-role="controle" role="tab" aria-selected="false"><span class="role-icon">◌</span><span><strong>Controle</strong><small>CGU, MPU e Tribunais</small></span></button>
+        </div>
+        <div class="selected-role-note" id="selected-role-note"><strong>Perfil municipal selecionado</strong><span>Continue para cadastrar ou acompanhar um município.</span></div>
+        <button class="govbr-button" id="govbr-login"><span class="govbr-symbol">◎</span><span id="login-button-label">Entrar com gov.br</span><span class="auth-arrow">→</span></button>
         <div class="auth-divider"><span>ou</span></div>
         <button class="public-access-button" id="public-access">Consultar transparência pública <span>↗</span></button>
-        <small class="auth-footnote">A consulta às listas de indicados e cadastrados não exige autenticação.</small>
+        <small class="auth-footnote">A consulta às listas, ao mapa e aos downloads públicos não exige autenticação.</small>
         <div class="auth-security"><span>✓</span><div><strong>Ambiente institucional</strong><small>Seus dados são tratados conforme as regras de acesso e transparência pública.</small></div></div>
       </div>
     </section>
@@ -309,6 +324,25 @@
             <div class="public-kpis"><div><span>Municípios indicados</span><strong>2.095</strong><small>universo técnico · NT 1/2025 + NT 2/2025</small></div><div><span>Municípios cadastrados</span><strong>5</strong><small>inscrições concluídas no S2iD</small></div><div><span>Em preenchimento</span><strong>50</strong><small>processos municipais em andamento</small></div><div><span>Recorte legal específico</span><strong>2.086</strong><small>enxurradas e inundações · NT 2/2025</small></div></div>
             <div class="transparency-segment" role="tablist" aria-label="Separação das listas públicas"><button class="active" data-transparency-filter="all">Visão geral <small>2.095 indicados</small></button><button data-transparency-filter="indicated">Indicados <small>lista técnica</small></button><button data-transparency-filter="registered">Cadastrados <small>base S2iD</small></button><button data-transparency-filter="in-progress">Em preenchimento <small>processos abertos</small></button></div>
             <div class="distinction-note"><span class="distinction-icon">i</span><div><strong>Como interpretar as listas</strong><span><b>Indicado</b> significa que o município integra o universo técnico das notas. <b>Cadastrado</b> significa que a inscrição foi concluída na base oficial. <b>Em preenchimento</b> identifica um processo ainda não finalizado.</span></div></div>
+            <div class="public-map-section">
+              <article class="panel public-map-panel">
+                <div class="panel-heading"><div><div class="eyebrow">PAINEL ABERTO · VISÃO NACIONAL</div><h2>Onde estão os municípios?</h2><p class="panel-subcopy">Use o mapa para comparar indicação técnica, processo em andamento e cadastro efetivado.</p></div><span class="map-live-badge"><i></i> Atualização contínua</span></div>
+                <div class="public-map-toolbar"><div class="public-map-filters" role="tablist" aria-label="Filtros do mapa"><button class="active" data-public-map-filter="all">Todos</button><button data-public-map-filter="indicated"><i class="map-key blue"></i> Indicados</button><button data-public-map-filter="registered"><i class="map-key teal"></i> Cadastrados</button><button data-public-map-filter="in-progress"><i class="map-key gold"></i> Em preenchimento</button></div><span class="map-counter" id="map-counter">5 municípios no recorte</span></div>
+                <div class="public-map-canvas">
+                  <div class="map-grid-lines"></div>
+                  <svg viewBox="0 0 720 385" role="img" aria-label="Mapa esquemático do Brasil com municípios indicados e cadastrados"><defs><linearGradient id="publicBrazil" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8ebe3"/><stop offset="1" stop-color="#eef2e8"/></linearGradient><filter id="publicMapShadow"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity=".15"/></filter></defs><path d="M201 37 267 19 327 42 381 33 432 58 492 54 547 87 590 122 571 166 604 216 582 255 596 305 554 336 508 331 475 360 419 343 372 363 333 339 286 348 255 320 211 319 189 286 151 271 159 230 132 197 157 161 142 121 180 102Z" fill="url(#publicBrazil)" stroke="#91b9ab" stroke-width="3" filter="url(#publicMapShadow)"/><path d="M175 118 C249 86 288 118 355 94 S469 112 545 91 M161 197 C240 166 280 221 344 185 S463 177 564 212 M217 292 C284 266 351 299 411 270 S498 277 566 300" fill="none" stroke="#b6d4c9" stroke-width="2" stroke-dasharray="6 7"/><path d="M216 51 238 112 206 175 251 232 222 313 M329 43 347 107 322 183 362 255 333 337 M445 61 434 133 478 195 447 273 489 335" fill="none" stroke="#c3ddd3" stroke-width="2" opacity=".78"/>
+                    <g class="public-map-point indicated" data-map-category="indicated"><circle cx="461" cy="156" r="10"/><text x="461" y="160">I</text><title>Caraguatatuba · SP · Indicado</title></g>
+                    <g class="public-map-point indicated" data-map-category="indicated"><circle cx="447" cy="176" r="10"/><text x="447" y="180">I</text><title>Ubatuba · SP · Indicado</title></g>
+                    <g class="public-map-point indicated" data-map-category="indicated"><circle cx="450" cy="194" r="10"/><text x="450" y="198">I</text><title>Ilhabela · SP · Indicado</title></g>
+                    <g class="public-map-point in-progress" data-map-category="in-progress"><circle cx="437" cy="187" r="12"/><text x="437" y="191">P</text><title>São Sebastião · SP · Em preenchimento</title></g>
+                    <g class="public-map-point registered" data-map-category="registered"><circle cx="361" cy="313" r="12"/><text x="361" y="317">C</text><title>Porto Alegre · RS · Cadastrado</title></g>
+                    <g fill="#486f6d" font-family="Arial" font-size="11" font-weight="700"><text x="422" y="145">Litoral Norte · SP</text><text x="330" y="341">Porto Alegre · RS</text></g>
+                  </svg>
+                  <div class="public-map-caption"><span><i class="legend-dot blue"></i> Indicação técnica</span><span><i class="legend-dot teal"></i> Cadastro efetivado</span><span><i class="legend-dot gold"></i> Processo aberto</span><small>Recorte demonstrativo · integração cartográfica na versão completa</small></div>
+                </div>
+              </article>
+              <aside class="panel public-map-aside"><div class="eyebrow">DADOS ABERTOS</div><h2>Baixe as listas</h2><p>Exporte os recortes públicos para análise, fiscalização e acompanhamento regional.</p><div class="download-stack"><button class="download-button" data-download="indicated"><span class="download-icon blue">◎</span><span><strong>Municípios indicados</strong><small>Lista técnica · CSV demonstrativo</small></span><b>↓</b></button><button class="download-button" data-download="registered"><span class="download-icon teal">✓</span><span><strong>Municípios cadastrados</strong><small>Inscrições efetivadas · CSV demonstrativo</small></span><b>↓</b></button><button class="download-button" data-download="all"><span class="download-icon gold">≡</span><span><strong>Recorte completo</strong><small>Indicados, cadastrados e processos</small></span><b>↓</b></button></div><div class="public-map-tip"><span>✦</span><div><strong>Transparência por desenho</strong><small>A lista de indicação não substitui o cadastro. O mapa mostra as duas camadas lado a lado.</small></div></div></aside>
+            </div>
             <div class="panel public-table-panel"><div class="table-toolbar"><div><div class="eyebrow">LISTAGEM NACIONAL · RECORTE DEMONSTRATIVO</div><h2>Indicados, cadastrados e processos</h2></div><div class="table-actions"><label class="table-search">⌕ <input id="municipality-search" placeholder="Buscar município ou UF" /></label><select id="public-status"><option value="all">Todos os status</option><option value="Concluído">Concluído</option><option value="Em preenchimento">Em preenchimento</option><option value="Indicado">Indicado</option></select></div></div><div class="table-scroll"><table><thead><tr><th>Município</th><th>UF</th><th>Origem</th><th>Pedido de inscrição</th><th>Manifestação municipal</th><th>Aprovação / anuência</th><th>Documentos</th><th>Situação</th><th></th></tr></thead><tbody id="municipality-table"><tr data-category="in-progress"><td><strong>São Sebastião</strong><small>IBGE 3550704</small></td><td>SP</td><td><span class="origin-pill process">Processo</span></td><td>15 ago 2025</td><td>15 ago 2025</td><td>Aguardando análise</td><td><span class="doc-count">11/19</span></td><td><span class="status-badge status-warning"><span></span> Em preenchimento</span></td><td><button class="table-link" data-demo-action="detalhe">Ver ficha ↗</button></td></tr><tr data-category="indicated"><td><strong>Caraguatatuba</strong><small>IBGE 3510500</small></td><td>SP</td><td><span class="origin-pill indicated">Nota técnica</span></td><td>—</td><td>—</td><td>—</td><td><span class="doc-count muted-count">0/19</span></td><td><span class="status-badge status-neutral"><span></span> Indicado</span></td><td><button class="table-link" data-demo-action="detalhe">Ver ficha ↗</button></td></tr><tr data-category="indicated"><td><strong>Ubatuba</strong><small>IBGE 3555406</small></td><td>SP</td><td><span class="origin-pill indicated">Nota técnica</span></td><td>—</td><td>—</td><td>—</td><td><span class="doc-count muted-count">0/19</span></td><td><span class="status-badge status-neutral"><span></span> Indicado</span></td><td><button class="table-link" data-demo-action="detalhe">Ver ficha ↗</button></td></tr><tr data-category="indicated"><td><strong>Ilhabela</strong><small>IBGE 3520400</small></td><td>SP</td><td><span class="origin-pill indicated">Nota técnica</span></td><td>—</td><td>—</td><td>—</td><td><span class="doc-count muted-count">0/19</span></td><td><span class="status-badge status-neutral"><span></span> Indicado</span></td><td><button class="table-link" data-demo-action="detalhe">Ver ficha ↗</button></td></tr><tr data-category="registered"><td><strong>Porto Alegre</strong><small>IBGE 4314902</small></td><td>RS</td><td><span class="origin-pill registered">S2iD</span></td><td>22 jun 2026</td><td>03 jul 2026</td><td>18 jul 2026</td><td><span class="doc-count">19/19</span></td><td><span class="status-badge status-success"><span></span> Cadastrado</span></td><td><button class="table-link" data-demo-action="detalhe">Ver ficha ↗</button></td></tr></tbody></table></div><div class="table-footer"><span>Recorte demonstrativo · a listagem completa será consultada na fonte oficial</span><div><button class="pagination active">1</button><button class="pagination">2</button><button class="pagination">3</button><span>…</span><button class="pagination">→</button></div></div></div>
           </section>
 
