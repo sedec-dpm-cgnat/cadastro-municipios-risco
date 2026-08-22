@@ -1,4 +1,4 @@
--- CNM-RISCO — esquema inicial MySQL 8+
+-- Cadastro Nacional de Municípios — esquema inicial MySQL 8+
 -- Banco de testes. Não inclui credenciais nem dados pessoais reais.
 
 CREATE TABLE municipalities (

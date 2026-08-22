@@ -1,8 +1,8 @@
-# CNM-RISCO — proposta de sistema
+# Cadastro Nacional de Municípios — proposta de sistema
 
 ## 1. Visão do produto
 
-O CNM-RISCO será um portal simples para que o município:
+O Cadastro Nacional de Municípios será um portal simples para que o município:
 
 1. entre com sua conta gov.br;
 2. consulte se está na lista de municípios indicados;
