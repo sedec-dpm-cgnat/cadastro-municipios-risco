@@ -69,6 +69,8 @@ O sistema deve aceitar um arquivo em qualquer formato necessário ao município.
 
 O Decreto nº 10.692/2021 condiciona a inscrição à comprovação da existência de áreas de risco e determina que o inventário inclua cadastro ou relação georreferenciada dos imóveis e infraestruturas expostas. Consulte o [texto oficial do Decreto](https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/decreto/d10692.htm).
 
+Como apoio à preparação do pacote, o sistema deve apresentar uma referência ao [catálogo de Cartografia de Riscos Geológicos do SGB/CPRM](https://www.sgb.gov.br/produtos-por-estado-cartografia-de-riscos-geologicos), organizado por estado e município. O produto disponível poderá orientar a comprovação e ser relacionado ao processo, sem substituir a responsabilidade municipal nem transformar a consulta externa em requisito obrigatório.
+
 ### Manifestação do município indicado
 
 Quando o município estiver na lista de indicados, o responsável deve marcar um checkbox obrigatório com o texto:
@@ -76,6 +78,8 @@ Quando o município estiver na lista de indicados, o responsável deve marcar um
 > Atesto que o município está de acordo com a referida indicação e tomou ciência das condições para a inscrição no Cadastro Nacional, conforme o art. 3º, § 4º, do Decreto nº 10.692/2021.
 
 Sem o atesto, o botão de envio permanece bloqueado.
+
+O componente de atesto deve ser condicional: ele só aparece quando a identificação do município estiver associada à lista vigente de indicados. Para municípios fora da lista, a etapa informa que a manifestação específica da indicação não é necessária.
 
 ## 3. Painel depois da efetivação
 
@@ -158,6 +162,7 @@ Sugestão de cartões de apoio:
 - **Banco:** MySQL de testes na VPS Hostinger;
 - **Arquivos:** diretório privado da VPS ou armazenamento compatível com S3, sempre com cópia do checksum e metadados no banco;
 - **Mapa:** Leaflet ou OpenLayers na versão integrada; o protótipo atual usa mapa ilustrativo sem dependência externa;
+- **Integração cartográfica:** referência ao catálogo de produtos SGB/CPRM e, na versão completa, consulta de disponibilidade por estado/município;
 - **Autenticação:** OAuth/OIDC gov.br, com credenciais somente no ambiente do servidor.
 
 ### Estados do processo

@@ -183,8 +183,28 @@ document.querySelectorAll('[data-entry-destination]').forEach(button => button.a
 }));
 
 document.querySelectorAll('[data-step-nav]').forEach(button => button.addEventListener('click', () => setStep(button.dataset.stepNav)));
+const municipalityNameInput = document.querySelector('#municipality-name');
+const indicationSection = document.querySelector('#indication-attestation-section');
+const indicationAttestation = document.querySelector('#indication-attestation');
+const indicationStepCopy = document.querySelector('#indication-step-copy');
+const indicatedMunicipalities = new Set(['sao sebastiao', 'caraguatatuba', 'ubatuba', 'ilhabela']);
+function normalizeMunicipalityName(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+function updateIndicationRequirement() {
+  if (!municipalityNameInput || !indicationSection) return;
+  const municipalityIsIndicated = indicatedMunicipalities.has(normalizeMunicipalityName(municipalityNameInput.value));
+  indicationSection.hidden = !municipalityIsIndicated;
+  if (!municipalityIsIndicated && indicationAttestation) indicationAttestation.checked = false;
+  if (indicationStepCopy) indicationStepCopy.textContent = municipalityIsIndicated ? 'Como o município consta na lista de indicados, a inscrição depende da manifestação prévia do responsável.' : 'Este município não está identificado no recorte demonstrativo da lista de indicados. O atesto de concordância não é necessário.';
+}
+if (municipalityNameInput) {
+  municipalityNameInput.addEventListener('input', updateIndicationRequirement);
+  municipalityNameInput.addEventListener('change', updateIndicationRequirement);
+  updateIndicationRequirement();
+}
 document.querySelector('[data-step-next]').addEventListener('click', () => {
-  if (currentStep === 3 && !document.querySelector('#indication-attestation').checked) {
+  if (currentStep === 3 && indicationSection && !indicationSection.hidden && !document.querySelector('#indication-attestation').checked) {
     showToast('Marque o atesto obrigatório para continuar.');
     document.querySelector('#indication-attestation').focus();
     return;

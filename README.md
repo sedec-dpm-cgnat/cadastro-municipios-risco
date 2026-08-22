@@ -26,7 +26,9 @@ Depois abra [http://127.0.0.1:4173](http://127.0.0.1:4173).
 - contexto público sobre o aprimoramento da metodologia e referência ao [ICPM](https://icpm.dpm-sedec-sas.tech/) como plataforma preliminar de estudos do índice;
 - fluxo de cadastro inicial em quatro etapas: identificação, comprovação, manifestação prévia e revisão;
 - upload único da comprovação de áreas de risco, com ZIP como formato preferencial;
+- referência integrada ao catálogo de Cartografia de Riscos Geológicos do SGB/CPRM;
 - atesto obrigatório para municípios indicados;
+- atesto exibido condicionalmente apenas para municípios presentes na lista vigente de indicados;
 - área pós-efetivação com os sete campos de acompanhamento do art. 5º;
 - mapa esquemático com camadas de risco e integração com bases técnicas;
 - consulta pública de transparência;
