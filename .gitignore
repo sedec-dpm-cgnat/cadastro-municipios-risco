@@ -6,6 +6,7 @@ vendor/
 uploads/
 storage/
 logs/
+tmp/
 *.log
 *.bak
 Thumbs.db

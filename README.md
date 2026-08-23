@@ -39,7 +39,8 @@ Depois abra [http://127.0.0.1:4173](http://127.0.0.1:4173).
 - prévia temática local preservada como contingência quando a CDN ou o serviço cartográfico estiverem indisponíveis;
 - consulta pública de transparência;
 - painel público com mapa nacional demonstrativo, filtros por situação e downloads CSV separados;
-- mapa do Brasil com geometria cartográfica real, hachura do universo de 2.095 indicados e cinco pontos verdes de cadastros efetivados;
+- mapa nacional Leaflet rápido, com poligonais municipais e limites estaduais do IBGE, zoom nativo e popups por código IBGE;
+- indicação técnica em poligonal vermelha, cadastro efetivado com hachura vermelha e demais municípios em contorno preto sem preenchimento;
 - separação visual entre municípios indicados, cadastrados e processos em preenchimento;
 - visão nacional dos municípios indicados e da fila de notificação do Rio Grande do Sul;
 - interações simuladas, sem envio de dados reais.
