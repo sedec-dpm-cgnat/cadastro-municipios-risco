@@ -167,7 +167,8 @@ Sugestão de cartões de apoio:
 - **Arquivos:** diretório privado da VPS ou armazenamento compatível com S3, sempre com cópia do checksum e metadados no banco;
 - **Mapa:** Leaflet no protótipo e na versão integrada, com zoom nativo, enquadramento e controle de camadas;
 - **Malhas administrativas:** serviço de malhas do IBGE para desenhar a poligonal da UF, as divisas municipais e o município selecionado por código IBGE;
-- **Integração cartográfica:** referência ao catálogo de produtos SGB/CPRM e, na versão completa, consulta de disponibilidade por estado/município, sobrepondo os produtos temáticos sem confundi-los com os limites administrativos;
+- **Integração cartográfica:** Leaflet com malha administrativa do IBGE e camadas WMS/OGC oficiais do SGB/CPRM para suscetibilidade a movimento de massa e inundação. O painel deve diferenciar suscetibilidade territorial (SGB/CPRM), monitoramento e previsão (CEMADEN) e limites administrativos (IBGE), sem tratar essas fontes como equivalentes;
+- **Fontes públicas de referência:** [serviços OGC do SGB](https://opendata.sgb.gov.br/pages/servicos-ogc/), [mapa de risco do CEMADEN](https://mapa-riscos.cemaden.gov.br/) e [malhas territoriais do IBGE](https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais.html);
 - **Autenticação:** OAuth/OIDC gov.br, com credenciais somente no ambiente do servidor.
 
 ### Estados do processo

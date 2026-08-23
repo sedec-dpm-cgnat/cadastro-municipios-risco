@@ -240,7 +240,8 @@
               <article class="panel map-mini-panel">
                 <div class="panel-heading"><div><div class="eyebrow">INTELIGÊNCIA TERRITORIAL</div><h2>Áreas suscetíveis</h2></div><button class="panel-link" data-view-target="mapa">Abrir mapa ↗</button></div>
                 <div class="mini-map">
-                  <div class="map-toolbar"><span class="map-pill active">SGB</span><span class="map-pill">CEMADEN</span><span class="map-pill">IBGE</span></div>
+                  <div class="map-toolbar"><button type="button" class="map-pill active" data-map-source="sgb">SGB</button><button type="button" class="map-pill" data-map-source="cemaden">CEMADEN</button><button type="button" class="map-pill" data-map-source="ibge">IBGE</button></div>
+                  <div id="dashboard-susceptibility-map" class="dashboard-susceptibility-map" role="application" aria-label="Mapa real de suscetibilidade do SGB para São Sebastião"></div>
                   <svg class="map-art" viewBox="0 0 600 220" role="img" aria-label="Mapa esquemático de setores de risco">
                     <defs><linearGradient id="terrain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d7e9e3"/><stop offset="1" stop-color="#eff3ea"/></linearGradient><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#bfd8d0" stroke-width="1" opacity=".5"/></pattern></defs>
                     <path d="M0 20 C90 0 140 48 220 32 S360 12 420 45 S520 50 600 8 V220 H0Z" fill="url(#terrain)"/>
@@ -254,7 +255,7 @@
                     <g fill="#142754" stroke="#fff" stroke-width="2"><circle cx="192" cy="97" r="6"/><circle cx="391" cy="89" r="6"/><circle cx="493" cy="164" r="6"/></g>
                     <g fill="#142754" font-family="Arial" font-size="11" font-weight="700"><text x="176" y="78">Morro do Abrigo</text><text x="365" y="68">Topolândia</text><text x="470" y="216">Boiçucanga</text></g>
                   </svg>
-                  <div class="map-legend"><span><i class="legend-dot red"></i> Muito alto</span><span><i class="legend-dot gold"></i> Alto</span><span><i class="legend-line"></i> Hidrografia</span></div>
+                  <div class="map-legend" id="dashboard-map-legend"><span><i class="legend-dot sgb-high"></i> Alta</span><span><i class="legend-dot sgb-medium"></i> Média</span><span><i class="legend-dot sgb-low"></i> Baixa</span></div>
                 </div>
               </article>
             </div>

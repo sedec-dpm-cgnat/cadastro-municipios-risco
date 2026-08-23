@@ -83,6 +83,7 @@ function openView(viewName) {
   views.forEach(view => view.classList.toggle('is-visible', view.dataset.view === viewName));
   navItems.forEach(item => item.classList.toggle('is-active', item.dataset.viewTarget === viewName));
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (viewName === 'dashboard') window.setTimeout(() => loadDashboardSusceptibilityMap('sgb'), 90);
 }
 
 function openModal(key = 'ambiente') {
@@ -598,7 +599,9 @@ document.querySelector('#global-search').addEventListener('keydown', event => {
 document.querySelectorAll('.map-pill').forEach(pill => pill.addEventListener('click', () => {
   document.querySelectorAll('.map-pill').forEach(item => item.classList.remove('active'));
   pill.classList.add('active');
-  showToast(`Camada ${pill.textContent} selecionada.`);
+  const source = pill.dataset.mapSource || 'sgb';
+  if (typeof loadDashboardSusceptibilityMap === 'function') loadDashboardSusceptibilityMap(source);
+  else showToast(`Fonte ${pill.textContent} selecionada.`);
 }));
 
 const territoryMunicipality = document.querySelector('#territory-municipality');
@@ -650,9 +653,12 @@ const territoryMapFallback = territoryMapCanvas?.querySelector(':scope > svg');
 const territoryUfCodes = { AC: 12, AL: 27, AP: 16, AM: 13, BA: 29, CE: 23, DF: 53, ES: 32, GO: 52, MA: 21, MT: 51, MS: 50, MG: 31, PA: 15, PB: 25, PR: 41, PE: 26, PI: 22, RJ: 33, RN: 24, RS: 43, RO: 11, RR: 14, SC: 42, SP: 35, SE: 28, TO: 17 };
 const territoryUfNames = { AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará', DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão', MT: 'Mato Grosso', MS: 'Mato Grosso do Sul', MG: 'Minas Gerais', PA: 'Pará', PB: 'Paraíba', PR: 'Paraná', PE: 'Pernambuco', PI: 'Piauí', RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte', RS: 'Rio Grande do Sul', RO: 'Rondônia', RR: 'Roraima', SC: 'Santa Catarina', SP: 'São Paulo', SE: 'Sergipe', TO: 'Tocantins' };
 const territoryIbgeBase = 'https://servicodados.ibge.gov.br/api/v3/malhas';
+const territorySgbWmsUrl = 'https://geoservicos.sgb.gov.br/geoserver/ows';
+const territorySgbWmsLayerNames = { movement: 'gestao-territorial:suscet_movimento_de_massa', flood: 'gestao-territorial:suscet_inundacao' };
 let territoryLeafletMap = null;
 let territoryStateLayer = null;
 let territoryMunicipalityLayer = null;
+let territorySgbWmsLayers = {};
 let territorySelectedLayer = null;
 let territoryLoadedUf = null;
 let territoryLoadSequence = 0;
@@ -690,6 +696,7 @@ function requestTerritoryJson(url) {
 
 function showTerritoryMapFallback(reason = '') {
   territoryMapCanvas?.classList.remove('is-leaflet');
+  territoryMapCanvas?.parentElement?.classList.remove('is-leaflet');
   territoryLeafletHost?.classList.remove('is-live');
   const notice = territoryMapCanvas?.querySelector('.territory-map-fallback-notice');
   if (notice) notice.remove();
@@ -714,7 +721,8 @@ function applyTerritoryFallbackZoom(action) {
 function addTerritoryBoundaryToggles() {
   const layerList = territoryMapCanvas?.parentElement?.querySelector('.map-sidebar .layer-list');
   if (!layerList || layerList.querySelector('[data-territory-layer="municipalities"]')) return;
-  layerList.insertAdjacentHTML('afterbegin', '<label class="layer-item"><input type="checkbox" checked data-territory-layer="municipalities" /><span class="layer-swatch territory-boundary"></span><div><strong>Limites municipais IBGE</strong><small>Malha oficial · divisas e códigos municipais</small></div></label><label class="layer-item"><input type="checkbox" checked data-territory-layer="state" /><span class="layer-swatch territory-state-boundary"></span><div><strong>Limite estadual IBGE</strong><small>Contorno da UF consultada</small></div></label>');
+  layerList.insertAdjacentHTML('afterbegin', '<label class="layer-item"><input type="checkbox" checked data-territory-layer="municipalities" /><span class="layer-swatch territory-boundary"></span><div><strong>Limites municipais IBGE</strong><small>Malha oficial · divisas e códigos municipais</small></div></label><label class="layer-item"><input type="checkbox" checked data-territory-layer="state" /><span class="layer-swatch territory-state-boundary"></span><div><strong>Limite estadual IBGE</strong><small>Contorno da UF consultada</small></div></label><label class="layer-item"><input type="checkbox" checked data-territory-layer="sgb-movement" /><span class="layer-swatch risk-red"></span><div><strong>Suscetibilidade a movimento de massa</strong><small>SGB/CPRM · camada WMS oficial</small></div></label><label class="layer-item"><input type="checkbox" checked data-territory-layer="sgb-flood" /><span class="layer-swatch risk-gold"></span><div><strong>Suscetibilidade a inundação</strong><small>SGB/CPRM · camada WMS oficial</small></div></label>');
+  [...layerList.querySelectorAll('.layer-item')].filter(item => !item.querySelector('[data-territory-layer]')).slice(0, 2).forEach(item => { item.dataset.territoryDemo = 'true'; });
   layerList.querySelector('[data-territory-layer="municipalities"]')?.addEventListener('change', event => {
     if (!territoryLeafletMap || !territoryMunicipalityLayer) return;
     if (event.currentTarget.checked) territoryMunicipalityLayer.addTo(territoryLeafletMap);
@@ -725,6 +733,26 @@ function addTerritoryBoundaryToggles() {
     if (event.currentTarget.checked) territoryStateLayer.addTo(territoryLeafletMap);
     else territoryLeafletMap.removeLayer(territoryStateLayer);
   });
+  layerList.querySelector('[data-territory-layer="sgb-movement"]')?.addEventListener('change', event => {
+    if (!territoryLeafletMap || !territorySgbWmsLayers.movement) return;
+    if (event.currentTarget.checked) territorySgbWmsLayers.movement.addTo(territoryLeafletMap);
+    else territoryLeafletMap.removeLayer(territorySgbWmsLayers.movement);
+  });
+  layerList.querySelector('[data-territory-layer="sgb-flood"]')?.addEventListener('change', event => {
+    if (!territoryLeafletMap || !territorySgbWmsLayers.flood) return;
+    if (event.currentTarget.checked) territorySgbWmsLayers.flood.addTo(territoryLeafletMap);
+    else territoryLeafletMap.removeLayer(territorySgbWmsLayers.flood);
+  });
+}
+
+function ensureTerritorySgbWmsLayers() {
+  if (!territoryLeafletMap || !window.L) return;
+  if (!territorySgbWmsLayers.movement) {
+    territorySgbWmsLayers.movement = window.L.tileLayer.wms(territorySgbWmsUrl, { layers: territorySgbWmsLayerNames.movement, version: '1.3.0', format: 'image/png', transparent: true, opacity: .62, attribution: 'SGB/CPRM · suscetibilidade' }).addTo(territoryLeafletMap);
+    territorySgbWmsLayers.flood = window.L.tileLayer.wms(territorySgbWmsUrl, { layers: territorySgbWmsLayerNames.flood, version: '1.3.0', format: 'image/png', transparent: true, opacity: .5, attribution: 'SGB/CPRM · suscetibilidade' }).addTo(territoryLeafletMap);
+  } else {
+    Object.values(territorySgbWmsLayers).forEach(layer => layer.addTo(territoryLeafletMap));
+  }
 }
 
 function updateTerritoryMunicipalityStyles() {
@@ -769,12 +797,14 @@ async function loadTerritoryLeafletMap({ force = false, focus = true } = {}) {
     territoryLeafletMap = window.L.map(territoryLeafletHost, { zoomControl: true, minZoom: 4, maxZoom: 18, preferCanvas: true }).setView([-15.8, -47.9], 4);
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors · limites IBGE' }).addTo(territoryLeafletMap);
   }
+  ensureTerritorySgbWmsLayers();
   territoryLeafletHost.querySelector('.territory-map-loading')?.remove();
   const loading = document.createElement('div');
   loading.className = 'territory-map-loading';
   loading.innerHTML = `<div><strong>Carregando malha oficial ${uf}</strong><small>Buscando limites estaduais e municipais no serviço cartográfico do IBGE.</small></div>`;
   territoryLeafletHost.append(loading);
   territoryMapCanvas.classList.add('is-leaflet');
+  territoryMapCanvas.parentElement?.classList.add('is-leaflet');
   territoryLeafletMap.invalidateSize();
   const sequence = ++territoryLoadSequence;
   if (!force && territoryLoadedUf === uf && territoryMunicipalityLayer) {
@@ -809,7 +839,7 @@ async function loadTerritoryLeafletMap({ force = false, focus = true } = {}) {
     territoryLeafletMap.fitBounds(territoryStateLayer.getBounds(), { padding: [22, 22] });
     if (selectedLayer) selectTerritoryMunicipality(selectedFeature, selectedLayer, { focus });
     if (territoryMapStatus) territoryMapStatus.textContent = `${(municipalitiesGeoJson.features || []).length} municípios · ${territoryUfNames[uf]}`;
-    if (territoryMapAttribution) territoryMapAttribution.textContent = `Malha IBGE · ${territoryUfNames[uf]} · ${new Date().getFullYear()}`;
+    if (territoryMapAttribution) territoryMapAttribution.textContent = `Malha IBGE · SGB/CPRM WMS · ${territoryUfNames[uf]} · ${new Date().getFullYear()}`;
     loading.remove();
     territoryLeafletMap.invalidateSize();
   } catch (error) {
@@ -836,3 +866,100 @@ if (territorySearch) territorySearch.addEventListener('click', () => loadTerrito
 if (territoryUf) territoryUf.addEventListener('change', () => loadTerritoryLeafletMap({ force: true, focus: false }));
 if (territoryMunicipality) territoryMunicipality.addEventListener('keydown', event => { if (event.key === 'Enter') loadTerritoryLeafletMap({ force: true, focus: true }); });
 document.querySelectorAll('[data-view-target="mapa"]').forEach(trigger => trigger.addEventListener('click', () => window.setTimeout(() => { territoryLeafletMap?.invalidateSize(); loadTerritoryLeafletMap({ force: false, focus: false }); }, 80)));
+
+/* Prévia real do painel: suscetibilidade SGB/CPRM com limites IBGE. */
+const dashboardSusceptibilityHost = document.querySelector('#dashboard-susceptibility-map');
+const dashboardMiniMap = dashboardSusceptibilityHost?.closest('.mini-map');
+const dashboardMapLegend = document.querySelector('#dashboard-map-legend');
+const dashboardSgbWmsUrl = 'https://geoservicos.sgb.gov.br/geoserver/ows';
+const dashboardSgbWmsLayerNames = { movement: 'gestao-territorial:suscet_movimento_de_massa', flood: 'gestao-territorial:suscet_inundacao' };
+const dashboardSgbRasterUrl = `${dashboardSgbWmsUrl}?service=WMS&request=GetMap&version=1.3.0&layers=${encodeURIComponent('gestao-territorial:suscet_movimento_de_massa,gestao-territorial:suscet_inundacao')}&styles=&crs=CRS:84&bbox=-45.62,-23.95,-45.22,-23.58&width=800&height=290&format=image/png&transparent=true`;
+let dashboardSusceptibilityMap = null;
+let dashboardSusceptibilityLayers = {};
+let dashboardMunicipalityBoundary = null;
+let dashboardSgbRaster = null;
+let dashboardSourceNote = null;
+
+function requestDashboardJson(url) {
+  if (typeof window.fetch !== 'function') return Promise.reject(new Error('fetch indisponível no ambiente de demonstração'));
+  return window.fetch(url, { mode: 'cors' }).then(response => {
+    if (!response.ok) throw new Error(`IBGE respondeu ${response.status}`);
+    return response.json();
+  });
+}
+
+function setDashboardSourceNote(html = '') {
+  if (!dashboardSusceptibilityHost) return;
+  if (!html) {
+    dashboardSourceNote?.remove();
+    dashboardSourceNote = null;
+    return;
+  }
+  if (!dashboardSourceNote) {
+    dashboardSourceNote = document.createElement('div');
+    dashboardSourceNote.className = 'dashboard-map-source-note';
+    dashboardSusceptibilityHost.append(dashboardSourceNote);
+  }
+  dashboardSourceNote.innerHTML = html;
+}
+
+function dashboardToggleLayer(layer, visible) {
+  if (!dashboardSusceptibilityMap || !layer) return;
+  if (visible) layer.addTo(dashboardSusceptibilityMap);
+  else dashboardSusceptibilityMap.removeLayer(layer);
+}
+
+function setDashboardSusceptibilitySource(source = 'sgb') {
+  if (!dashboardSusceptibilityMap) return;
+  const selectedSource = source === 'cemaden' || source === 'ibge' ? source : 'sgb';
+  const isSgb = selectedSource === 'sgb';
+  const isIbge = selectedSource === 'ibge';
+  if (dashboardSgbRaster) dashboardSgbRaster.style.display = isSgb ? 'block' : 'none';
+  dashboardToggleLayer(dashboardSusceptibilityLayers.movement, isSgb);
+  dashboardToggleLayer(dashboardSusceptibilityLayers.flood, isSgb);
+  dashboardToggleLayer(dashboardMunicipalityBoundary, isSgb || isIbge);
+  document.querySelectorAll('.map-pill').forEach(pill => pill.classList.toggle('active', (pill.dataset.mapSource || 'sgb') === selectedSource));
+  if (!dashboardMapLegend) return;
+  if (selectedSource === 'sgb') {
+    dashboardMapLegend.innerHTML = '<span><i class="legend-dot sgb-high"></i> Alta</span><span><i class="legend-dot sgb-medium"></i> Média</span><span><i class="legend-dot sgb-low"></i> Baixa</span><small>SGB/CPRM · suscetibilidade oficial · movimento de massa e inundação</small>';
+    setDashboardSourceNote('SGB/CPRM · São Sebastião/SP · áreas de suscetibilidade oficiais.');
+  } else if (selectedSource === 'cemaden') {
+    dashboardMapLegend.innerHTML = '<span>Monitoramento e previsão de risco geo-hidrológico</span><a href="https://mapa-riscos.cemaden.gov.br/" target="_blank" rel="noreferrer">Abrir mapa CEMADEN ↗</a>';
+    setDashboardSourceNote('O CEMADEN acompanha e prevê risco. Para a carta de suscetibilidade territorial, use a aba SGB.');
+  } else {
+    dashboardMapLegend.innerHTML = '<span><i class="legend-line"></i> Limite municipal</span><small>IBGE · malha oficial do município · as áreas suscetíveis são exibidas pelo SGB</small>';
+    setDashboardSourceNote('IBGE fornece os limites territoriais. A camada temática de suscetibilidade é do SGB/CPRM.');
+  }
+}
+
+async function loadDashboardSusceptibilityMap(source = 'sgb') {
+  if (!dashboardSusceptibilityHost || !dashboardMiniMap) return;
+  if (!window.L) {
+    dashboardMiniMap.classList.remove('is-live');
+    showToast('A prévia ilustrativa continua disponível enquanto o mapa oficial não carrega.');
+    return;
+  }
+  if (!dashboardSusceptibilityMap) {
+    dashboardSusceptibilityMap = window.L.map(dashboardSusceptibilityHost, { zoomControl: true, minZoom: 8, maxZoom: 15, attributionControl: true }).setView([-23.79, -45.40], 11);
+    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap · limites IBGE · suscetibilidade SGB/CPRM' }).addTo(dashboardSusceptibilityMap);
+    dashboardSusceptibilityLayers.movement = window.L.tileLayer.wms(dashboardSgbWmsUrl, { layers: dashboardSgbWmsLayerNames.movement, version: '1.3.0', format: 'image/png', transparent: true, opacity: .65, attribution: 'SGB/CPRM · movimento de massa' }).addTo(dashboardSusceptibilityMap);
+    dashboardSusceptibilityLayers.flood = window.L.tileLayer.wms(dashboardSgbWmsUrl, { layers: dashboardSgbWmsLayerNames.flood, version: '1.3.0', format: 'image/png', transparent: true, opacity: .5, attribution: 'SGB/CPRM · inundação' }).addTo(dashboardSusceptibilityMap);
+    dashboardSgbRaster = document.createElement('img');
+    dashboardSgbRaster.className = 'dashboard-sgb-raster';
+    dashboardSgbRaster.alt = 'Áreas de suscetibilidade do SGB/CPRM em São Sebastião, com classes de movimento de massa e inundação';
+    dashboardSgbRaster.src = dashboardSgbRasterUrl;
+    dashboardSgbRaster.addEventListener('error', () => { dashboardSgbRaster.style.display = 'none'; });
+    dashboardSusceptibilityHost.append(dashboardSgbRaster);
+    dashboardMiniMap.classList.add('is-live');
+    try {
+      const boundary = await requestDashboardJson('https://servicodados.ibge.gov.br/api/v3/malhas/municipios/3550704?formato=application/vnd.geo+json&resolucao=2');
+      dashboardMunicipalityBoundary = window.L.geoJSON(boundary, { style: { color: '#173a5a', weight: 2.2, opacity: .9, fill: false, dashArray: '5 4' } }).addTo(dashboardSusceptibilityMap);
+      dashboardSusceptibilityMap.fitBounds(dashboardMunicipalityBoundary.getBounds(), { padding: [10, 10], maxZoom: 12 });
+    } catch (error) {
+      console.warn('Limite IBGE da prévia do painel indisponível; mantendo as camadas SGB.', error);
+    }
+  }
+  dashboardMiniMap.classList.add('is-live');
+  dashboardSusceptibilityMap.invalidateSize();
+  setDashboardSusceptibilitySource(source);
+}

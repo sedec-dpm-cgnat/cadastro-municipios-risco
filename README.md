@@ -34,6 +34,8 @@ Depois abra [http://127.0.0.1:4173](http://127.0.0.1:4173).
 - painel habilitado pós-cadastro com upload individual, status, data de atualização e observação para cada obrigação;
 - mapa territorial Leaflet com zoom, enquadramento e poligonais oficiais de estados e municípios consultados;
 - malhas IBGE carregadas por UF e município, com destaque, código IBGE, popups e camadas ligáveis/desligáveis;
+- camadas WMS oficiais do SGB/CPRM para suscetibilidade a movimento de massa e inundação, com legenda por classe;
+- distinção explícita entre SGB (suscetibilidade), CEMADEN (monitoramento/previsão) e IBGE (limites territoriais);
 - prévia temática local preservada como contingência quando a CDN ou o serviço cartográfico estiverem indisponíveis;
 - consulta pública de transparência;
 - painel público com mapa nacional demonstrativo, filtros por situação e downloads CSV separados;
