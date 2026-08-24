@@ -659,6 +659,63 @@ async function loadNationalMunicipalityData() {
   return nationalMunicipalityDataPromise;
 }
 
+/* ===== Checklist das obrigacoes do art. 5o (dados ilustrativos do prototipo) =====
+   Cada municipio cadastrado tem o conjunto de itens ja carregados no sistema.
+   Itens ausentes da lista aparecem sem marcacao de check. */
+const CNM_OBLIGATION_ITEMS = ['01', '02', '03', '04', '05', '06', '07'];
+const CNM_OBLIGATION_STATUS = {
+  '4314902': { nome: 'Porto Alegre', uf: 'RS', carregados: ['01', '02', '03', '05', '07'] },
+  '3304557': { nome: 'Rio de Janeiro', uf: 'RJ', carregados: ['01', '02', '03', '04', '05', '06', '07'] },
+  '3550308': { nome: 'São Paulo', uf: 'SP', carregados: ['01', '02', '03', '04', '05', '07'] },
+  '2611606': { nome: 'Recife', uf: 'PE', carregados: ['01', '02', '03', '07'] },
+  '1302603': { nome: 'Manaus', uf: 'AM', carregados: ['01', '03'] },
+  '3550704': { nome: 'São Sebastião', uf: 'SP', carregados: [], observacao: 'Cadastro ainda em preenchimento; as obrigações passam a valer após a efetivação.' }
+};
+
+function limparChecklistObrigacoes() {
+  const grade = document.querySelector('[data-obligation-grid]');
+  const resumo = document.querySelector('[data-obligation-summary]');
+  if (!grade) return;
+  grade.classList.remove('has-selection');
+  grade.querySelectorAll('[data-obligation]').forEach(item => {
+    item.removeAttribute('data-loaded');
+    const estado = item.querySelector('.obligation-state');
+    if (estado) estado.textContent = '';
+  });
+  if (resumo) { resumo.hidden = true; resumo.innerHTML = ''; }
+}
+
+function aplicarChecklistObrigacoes(code) {
+  const grade = document.querySelector('[data-obligation-grid]');
+  const resumo = document.querySelector('[data-obligation-summary]');
+  if (!grade) return;
+  const registro = CNM_OBLIGATION_STATUS[String(code)];
+  if (!registro) { limparChecklistObrigacoes(); return; }
+
+  const carregados = new Set(registro.carregados || []);
+  grade.classList.add('has-selection');
+  grade.querySelectorAll('[data-obligation]').forEach(item => {
+    const id = item.dataset.obligation;
+    const ok = carregados.has(id);
+    item.dataset.loaded = ok ? 'sim' : 'nao';
+    const estado = item.querySelector('.obligation-state');
+    if (estado) estado.textContent = ok ? 'Documento carregado' : 'Pendente de envio';
+  });
+
+  if (resumo) {
+    const total = CNM_OBLIGATION_ITEMS.length;
+    const nota = registro.observacao
+      ? `<small>${registro.observacao}</small>`
+      : `<small>Documentos carregados no sistema pelo município cadastrado.</small>`;
+    resumo.hidden = false;
+    resumo.innerHTML = `<div><strong>${registro.nome} · ${registro.uf}</strong>${nota}</div>`
+      + `<div><span class="responsibility-count">${carregados.size}/${total}</span> `
+      + `<button type="button" data-obligation-clear>limpar seleção</button></div>`;
+    const limpar = resumo.querySelector('[data-obligation-clear]');
+    if (limpar) limpar.addEventListener('click', limparChecklistObrigacoes);
+  }
+}
+
 function nationalPopupFor(feature, metadata) {
   const code = nationalFeatureCode(feature);
   const item = metadata.get(code) || { name: `Município ${code}`, uf: '' };
@@ -914,6 +971,11 @@ async function loadNationalLeafletMap(mode = 'public', defaultFilter = 'all') {
     instance.backControl = voltar;
 
     nationalBuildOverview(instance);
+    map.on('popupopen', event => {
+      const alvo = event.popup?._source?.feature?.properties?.codarea
+        || event.popup?.getContent?.()?.match?.(/IBGE (\d{7})/)?.[1];
+      if (alvo) aplicarChecklistObrigacoes(String(alvo));
+    });
     nationalMapInstances.set(mode, instance);
     nationalWatchResize(instance);
     nationalMapFilterForInstance(instance, mode === 'public' ? nationalPendingFilter : defaultFilter);
@@ -1327,6 +1389,7 @@ let dashboardSusceptibilityMap = null;
 let dashboardSusceptibilityLayers = {};
 let dashboardMunicipalityBoundary = null;
 let dashboardSgbRaster = null;
+const dashboardSgbRasterBounds = [[-23.95, -45.62], [-23.58, -45.22]];
 let dashboardSourceNote = null;
 
 function requestDashboardJson(url) {
@@ -1363,7 +1426,9 @@ function setDashboardSusceptibilitySource(source = 'sgb') {
   const selectedSource = source === 'cemaden' || source === 'ibge' ? source : 'sgb';
   const isSgb = selectedSource === 'sgb';
   const isIbge = selectedSource === 'ibge';
-  if (dashboardSgbRaster) dashboardSgbRaster.style.display = isSgb ? 'block' : 'none';
+  if (dashboardSgbRaster && dashboardSusceptibilityMap && dashboardSusceptibilityMap.hasLayer(dashboardSgbRaster) && !isSgb) {
+    dashboardSusceptibilityMap.removeLayer(dashboardSgbRaster);
+  }
   dashboardToggleLayer(dashboardSusceptibilityLayers.movement, isSgb);
   dashboardToggleLayer(dashboardSusceptibilityLayers.flood, isSgb);
   dashboardToggleLayer(dashboardMunicipalityBoundary, isSgb || isIbge);
@@ -1393,17 +1458,32 @@ async function loadDashboardSusceptibilityMap(source = 'sgb') {
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap · limites IBGE · suscetibilidade SGB/CPRM' }).addTo(dashboardSusceptibilityMap);
     dashboardSusceptibilityLayers.movement = window.L.tileLayer.wms(dashboardSgbWmsUrl, { layers: dashboardSgbWmsLayerNames.movement, version: '1.3.0', format: 'image/png', transparent: true, opacity: .65, attribution: 'SGB/CPRM · movimento de massa' }).addTo(dashboardSusceptibilityMap);
     dashboardSusceptibilityLayers.flood = window.L.tileLayer.wms(dashboardSgbWmsUrl, { layers: dashboardSgbWmsLayerNames.flood, version: '1.3.0', format: 'image/png', transparent: true, opacity: .5, attribution: 'SGB/CPRM · inundação' }).addTo(dashboardSusceptibilityMap);
-    dashboardSgbRaster = document.createElement('img');
-    dashboardSgbRaster.className = 'dashboard-sgb-raster';
-    dashboardSgbRaster.alt = 'Áreas de suscetibilidade do SGB/CPRM em São Sebastião, com classes de movimento de massa e inundação';
-    dashboardSgbRaster.src = dashboardSgbRasterUrl;
-    dashboardSgbRaster.addEventListener('error', () => { dashboardSgbRaster.style.display = 'none'; });
-    dashboardSusceptibilityHost.append(dashboardSgbRaster);
+    /* Fallback georreferenciado: entra apenas se o WMS ao vivo falhar.
+       Antes era um <img> esticado por CSS, que nao acompanhava zoom nem pan. */
+    dashboardSgbRaster = window.L.imageOverlay(dashboardSgbRasterUrl, dashboardSgbRasterBounds, {
+      opacity: .85, interactive: false, alt: 'Suscetibilidade SGB/CPRM em São Sebastião'
+    });
+    let wmsFalhou = false;
+    dashboardSusceptibilityLayers.movement.on('tileerror', () => {
+      if (wmsFalhou) return;
+      wmsFalhou = true;
+      dashboardSgbRaster.addTo(dashboardSusceptibilityMap);
+    });
     dashboardMiniMap.classList.add('is-live');
     try {
       const boundary = await requestDashboardJson('https://servicodados.ibge.gov.br/api/v3/malhas/municipios/3550704?formato=application/vnd.geo+json&resolucao=2');
       dashboardMunicipalityBoundary = window.L.geoJSON(boundary, { style: { color: '#173a5a', weight: 2.2, opacity: .9, fill: false, dashArray: '5 4' } }).addTo(dashboardSusceptibilityMap);
-      dashboardSusceptibilityMap.fitBounds(dashboardMunicipalityBoundary.getBounds(), { padding: [10, 10], maxZoom: 12 });
+      const alvo = dashboardMunicipalityBoundary.getBounds();
+      const enquadrar = () => {
+        if (!dashboardSusceptibilityHost.offsetWidth || !dashboardSusceptibilityHost.offsetHeight) return false;
+        dashboardSusceptibilityMap.invalidateSize();
+        dashboardSusceptibilityMap.fitBounds(alvo, { padding: [10, 10], maxZoom: 12 });
+        return true;
+      };
+      if (!enquadrar() && typeof ResizeObserver === 'function') {
+        const observador = new ResizeObserver(() => { if (enquadrar()) observador.disconnect(); });
+        observador.observe(dashboardSusceptibilityHost);
+      }
     } catch (error) {
       console.warn('Limite IBGE da prévia do painel indisponível; mantendo as camadas SGB.', error);
     }
