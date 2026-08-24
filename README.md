@@ -23,7 +23,7 @@ Depois abra [http://127.0.0.1:4173](http://127.0.0.1:4173).
 - explicação visual da diferença entre indicação técnica, cadastro efetivado e transparência;
 - atalhos públicos na tela inicial para a explicação dos 2.095 indicados e o mapa das 5 inscrições concluídas;
 - páginas nacionais com mapa do Brasil, notas técnicas da Casa Civil e responsabilidades posteriores à inscrição;
-- contexto público sobre o aprimoramento da metodologia, com referência à proposta do [Índice Nacional de Risco (INR)](https://sedec-dpm-cgnat.github.io/INR/) e ao [ICPM](https://icpm.dpm-sedec-sas.tech/) como plataforma preliminar de estudos do índice;
+- contexto público sobre o aprimoramento da metodologia e referência ao [ICPM](https://icpm.dpm-sedec-sas.tech/) como plataforma preliminar de estudos do índice;
 - fluxo de cadastro inicial em quatro etapas: identificação, comprovação, manifestação prévia e revisão;
 - upload único da comprovação de áreas de risco, com ZIP como formato preferencial;
 - referência integrada ao catálogo de Cartografia de Riscos Geológicos do SGB/CPRM;

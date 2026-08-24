@@ -598,116 +598,259 @@ const nationalMapInstances = new Map();
 let nationalMunicipalityDataPromise = null;
 let nationalPendingFilter = 'all';
 
+/* ===== Mapa nacional em dois niveis: Brasil -> macrorregiao ===== */
+const nationalRegionNames = { '1': 'Norte', '2': 'Nordeste', '3': 'Sudeste', '4': 'Sul', '5': 'Centro-Oeste' };
+
 function nationalFeatureCode(feature) {
   return String(feature?.properties?.codarea || feature?.properties?.CD_MUN || feature?.id || '').replace(/\.0$/, '');
 }
 
-function nationalStatusFor(code) {
-  if (nationalRegisteredCodes.has(code)) return 'registered';
-  if (nationalInProgressCodes.has(code)) return 'in-progress';
-  if (nationalIndicatedCodes.has(code)) return 'indicated';
-  return 'other';
-}
-
-function nationalRequestJson(url) {
-  return fetch(url, { mode: 'cors' }).then(response => {
-    if (!response.ok) throw new Error(`IBGE respondeu ${response.status}`);
-    return response.json();
+/* Centroide aproximado: media dos vertices do maior anel externo. */
+function nationalCentroid(feature) {
+  const geometry = feature?.geometry;
+  if (!geometry) return null;
+  const rings = geometry.type === 'Polygon'
+    ? [geometry.coordinates?.[0]]
+    : geometry.type === 'MultiPolygon'
+      ? (geometry.coordinates || []).map(polygon => polygon?.[0])
+      : [];
+  let maior = null;
+  let maiorArea = -1;
+  rings.forEach(ring => {
+    if (!Array.isArray(ring) || ring.length < 3) return;
+    let area = 0;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      area += ring[j][0] * ring[i][1] - ring[i][0] * ring[j][1];
+    }
+    area = Math.abs(area / 2);
+    if (area > maiorArea) { maiorArea = area; maior = ring; }
   });
+  if (!maior) return null;
+  let x = 0;
+  let y = 0;
+  maior.forEach(coord => { x += coord[0]; y += coord[1]; });
+  return [y / maior.length, x / maior.length];
 }
 
 async function loadNationalMunicipalityData() {
   if (nationalMunicipalityDataPromise) return nationalMunicipalityDataPromise;
   nationalMunicipalityDataPromise = (async () => {
-    const namesPromise = nationalRequestJson('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
-    const geometries = [];
-    const stateGeometries = [];
-    for (let index = 0; index < nationalMapStateCodes.length; index += 5) {
-      const batch = nationalMapStateCodes.slice(index, index + 5);
-      const [municipalityResults, stateResults] = await Promise.all([
-        Promise.all(batch.map(stateCode => nationalRequestJson(`${nationalMapGeometryBase}/estados/${stateCode}?formato=application/vnd.geo+json&resolucao=2&intrarregiao=municipio`))),
-        Promise.all(batch.map(stateCode => nationalRequestJson(`${nationalMapGeometryBase}/estados/${stateCode}?formato=application/vnd.geo+json&resolucao=2`)))
-      ]);
-      municipalityResults.forEach(geoJson => geometries.push(...(geoJson.features || [])));
-      stateResults.forEach(geoJson => stateGeometries.push(...(geoJson.features || [])));
-    }
-    const names = await namesPromise;
+    const base = nationalMapGeometryBase;
+    const geo = 'formato=application/vnd.geo+json';
+    const [municipios, regioes, estados, names] = await Promise.all([
+      nationalRequestJson(`${base}/paises/BR?${geo}&intrarregiao=municipio&qualidade=minima`),
+      nationalRequestJson(`${base}/paises/BR?${geo}&intrarregiao=regiao&qualidade=intermediaria`),
+      nationalRequestJson(`${base}/paises/BR?${geo}&intrarregiao=UF&qualidade=intermediaria`).catch(() => ({ features: [] })),
+      nationalRequestJson('https://servicodados.ibge.gov.br/api/v1/localidades/municipios')
+    ]);
     const metadata = new Map((Array.isArray(names) ? names : []).map(item => [String(item.id), {
       name: item.nome,
-      uf: item.microrregiao?.mesorregiao?.UF?.sigla || ''
+      uf: item.microrregiao?.mesorregiao?.UF?.sigla || item.regiao_imediata?.regiao_intermediaria?.UF?.sigla || ''
     }]));
-    return { features: geometries, states: stateGeometries, metadata };
+    const features = municipios.features || [];
+    const centroides = new Map();
+    features.forEach(feature => {
+      const code = nationalFeatureCode(feature);
+      const centro = nationalCentroid(feature);
+      if (code && centro) centroides.set(code, centro);
+    });
+    return { features, regions: regioes.features || [], states: estados.features || [], metadata, centroides };
   })();
   return nationalMunicipalityDataPromise;
-}
-
-function nationalStyleFor(feature, filter = 'all') {
-  const code = nationalFeatureCode(feature);
-  const status = nationalStatusFor(code);
-  const filteredOut = filter === 'indicated' ? status === 'other' : filter === 'registered' ? status !== 'registered' : filter === 'in-progress' ? status !== 'in-progress' : false;
-  if (filteredOut) return { color: '#c8ced5', weight: .35, opacity: .55, fillColor: '#fff', fillOpacity: 0 };
-  if (status === 'registered') return { color: '#991b1b', weight: 2.15, opacity: 1, fillColor: '#ffd8d4', fillOpacity: .58 };
-  if (status === 'indicated') return { color: '#b42318', weight: 1.55, opacity: 1, fillColor: '#fff4f2', fillOpacity: .1 };
-  if (status === 'in-progress') return { color: '#bd7520', weight: 1.7, opacity: 1, fillColor: '#fff6df', fillOpacity: .28 };
-  return { color: '#111827', weight: .58, opacity: .72, fillColor: '#fff', fillOpacity: 0 };
 }
 
 function nationalPopupFor(feature, metadata) {
   const code = nationalFeatureCode(feature);
   const item = metadata.get(code) || { name: `Município ${code}`, uf: '' };
-  const statusLabels = { registered: 'Cadastrado · hachura vermelha', indicated: 'Indicado · poligonal vermelha', 'in-progress': 'Em preenchimento', other: 'Não indicado · contorno preto' };
+  const statusLabels = {
+    registered: 'Cadastrado',
+    indicated: 'Indicado',
+    'in-progress': 'Em preenchimento',
+    other: 'Município não indicado'
+  };
   return `<div class="national-map-popup"><strong>${item.name}</strong><small>${item.uf} · IBGE ${code}</small><small>${statusLabels[nationalStatusFor(code)]}</small></div>`;
 }
 
+/* Hachura vermelha densa para os municipios cadastrados. */
 function installNationalHatchPattern(renderer, patternId) {
   const svg = renderer?._container;
   if (!svg || svg.querySelector(`#${patternId}`)) return;
-  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-  const pattern = document.createElementNS('http://www.w3.org/2000/svg', 'pattern');
+  const ns = 'http://www.w3.org/2000/svg';
+  const defs = document.createElementNS(ns, 'defs');
+  const pattern = document.createElementNS(ns, 'pattern');
   pattern.setAttribute('id', patternId);
-  pattern.setAttribute('width', '9');
-  pattern.setAttribute('height', '9');
+  pattern.setAttribute('width', '5');
+  pattern.setAttribute('height', '5');
   pattern.setAttribute('patternUnits', 'userSpaceOnUse');
-  pattern.setAttribute('patternTransform', 'rotate(0)');
-  const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  line.setAttribute('d', 'M-2,2 L2,-2 M0,9 L9,0 M7,11 L11,7');
-  line.setAttribute('stroke', '#b42318');
-  line.setAttribute('stroke-width', '1.35');
-  line.setAttribute('opacity', '.9');
-  pattern.append(line);
+  const fundo = document.createElementNS(ns, 'rect');
+  fundo.setAttribute('width', '5');
+  fundo.setAttribute('height', '5');
+  fundo.setAttribute('fill', '#fee2e0');
+  fundo.setAttribute('opacity', '.55');
+  const line = document.createElementNS(ns, 'path');
+  line.setAttribute('d', 'M-1,1 L1,-1 M0,5 L5,0 M4,6 L6,4');
+  line.setAttribute('stroke', '#991b1b');
+  line.setAttribute('stroke-width', '1.5');
+  line.setAttribute('opacity', '1');
+  pattern.append(fundo, line);
   defs.append(pattern);
   svg.insertBefore(defs, svg.firstChild);
 }
 
-function nationalMapHostFor(mode) {
-  if (mode === 'public') return document.querySelector('#national-leaflet-map')?.closest('.public-map-canvas');
-  const shell = document.querySelector(`.national-map-shell.${mode === 'registered' ? 'registered-mode' : 'indicated-mode'}`);
-  if (!shell) return null;
-  let host = shell.querySelector('.national-leaflet-map');
-  if (!host) {
-    host = document.createElement('div');
-    host.id = `national-leaflet-map-${mode}`;
-    host.className = 'national-leaflet-map';
-    host.setAttribute('role', 'application');
-    host.setAttribute('aria-label', mode === 'registered' ? 'Mapa Leaflet dos municípios cadastrados' : 'Mapa Leaflet dos municípios indicados');
-    shell.prepend(host);
-  }
-  return shell;
+/* Leaflet lanca excecao ao enquadrar em container 0x0 (view oculta).
+   Guarda o alvo e reaplica quando o mapa ganha tamanho. */
+function nationalFitBounds(instance, bounds, options = {}) {
+  if (!bounds || !bounds.isValid()) return;
+  instance.pendingBounds = { bounds, options };
+  const host = instance.host;
+  if (!host || !host.offsetWidth || !host.offsetHeight) return;
+  instance.map.invalidateSize();
+  instance.map.fitBounds(bounds, options);
+  instance.pendingBounds = null;
 }
 
-function nationalMapFilterForInstance(instance, filter) {
-  const effectiveFilter = instance.mode === 'public' ? filter : instance.mode;
-  instance.filter = effectiveFilter;
-  if (instance.municipalitiesLayer) instance.municipalitiesLayer.eachLayer(layer => layer.setStyle(nationalStyleFor(layer.feature, effectiveFilter)));
-  if (instance.registeredLayer) {
-    const showHatch = effectiveFilter !== 'indicated' && effectiveFilter !== 'in-progress';
-    instance.registeredLayer.setStyle({ opacity: showHatch ? 1 : 0, fillOpacity: showHatch ? .84 : 0 });
-  }
+function nationalWatchResize(instance) {
+  if (typeof ResizeObserver !== 'function' || instance.resizeObserver) return;
+  instance.resizeObserver = new ResizeObserver(() => {
+    const host = instance.host;
+    if (!host || !host.offsetWidth || !host.offsetHeight) return;
+    instance.map.invalidateSize();
+    if (instance.pendingBounds) {
+      instance.map.fitBounds(instance.pendingBounds.bounds, instance.pendingBounds.options);
+      instance.pendingBounds = null;
+    }
+  });
+  instance.resizeObserver.observe(instance.host);
 }
 
-function applyNationalMapFilter(filter = 'all') {
-  nationalPendingFilter = filter;
-  nationalMapInstances.forEach(instance => nationalMapFilterForInstance(instance, filter));
+function nationalRegionStyle(destaque = false) {
+  return destaque
+    ? { color: '#b42318', weight: 1.9, opacity: .95, fillColor: '#f9c9c2', fillOpacity: .5 }
+    : { color: '#7d8794', weight: 1.25, opacity: .8, fillColor: '#dfe6ec', fillOpacity: .42 };
+}
+
+/* Nivel 1: marcadores dos municipios + macrorregioes clicaveis. */
+function nationalBuildOverview(instance) {
+  const { map, data } = instance;
+  const canvas = window.L.canvas({ padding: .3 });
+
+  instance.regionLayer = window.L.geoJSON({ type: 'FeatureCollection', features: data.regions }, {
+    style: () => nationalRegionStyle(false),
+    onEachFeature: (feature, layer) => {
+      const id = nationalFeatureCode(feature);
+      const nome = nationalRegionNames[id] || `Região ${id}`;
+      const total = instance.contagemPorRegiao[id] || { indicados: 0, cadastrados: 0 };
+      layer.bindTooltip(
+        `<strong>${nome}</strong><br>${total.indicados} indicados · ${total.cadastrados} cadastrados<br><em>clique para abrir os municípios</em>`,
+        { sticky: true, className: 'national-region-tip' }
+      );
+      layer.on({
+        mouseover: () => layer.setStyle(nationalRegionStyle(true)),
+        mouseout: () => layer.setStyle(nationalRegionStyle(false)),
+        click: () => nationalEnterRegion(instance, id)
+      });
+    }
+  }).addTo(map);
+
+  const indicadosFeatures = [];
+  const cadastradosFeatures = [];
+  data.features.forEach(feature => {
+    const code = nationalFeatureCode(feature);
+    const status = nationalStatusFor(code);
+    if (status === 'other') return;
+    const centro = data.centroides.get(code);
+    if (!centro) return;
+    (status === 'registered' ? cadastradosFeatures : indicadosFeatures).push({ code, centro, status });
+  });
+
+  instance.indicatedMarkers = window.L.layerGroup(indicadosFeatures.map(item => window.L.circleMarker(item.centro, {
+    renderer: canvas,
+    radius: item.status === 'in-progress' ? 4 : 3.4,
+    color: item.status === 'in-progress' ? '#bd7520' : '#b42318',
+    weight: 1.35,
+    opacity: .95,
+    fillColor: '#ffffff',
+    fillOpacity: .55
+  }).bindPopup(nationalPopupFor({ properties: { codarea: item.code } }, data.metadata)))).addTo(map);
+
+  instance.registeredMarkers = window.L.layerGroup(cadastradosFeatures.map(item => window.L.circleMarker(item.centro, {
+    renderer: canvas,
+    radius: 6.2,
+    color: '#7f1416',
+    weight: 1.7,
+    opacity: 1,
+    fillColor: '#d92d20',
+    fillOpacity: 1
+  }).bindPopup(nationalPopupFor({ properties: { codarea: item.code } }, data.metadata)))).addTo(map);
+}
+
+function nationalShowOverview(instance) {
+  instance.level = 'brasil';
+  if (instance.municipalLayer) { instance.map.removeLayer(instance.municipalLayer); instance.municipalLayer = null; }
+  if (instance.registeredLayer) { instance.map.removeLayer(instance.registeredLayer); instance.registeredLayer = null; }
+  [instance.regionLayer, instance.indicatedMarkers, instance.registeredMarkers].forEach(layer => {
+    if (layer && !instance.map.hasLayer(layer)) instance.map.addLayer(layer);
+  });
+  if (instance.backControl) instance.backControl.style.display = 'none';
+  if (instance.regionLayer) {
+    nationalFitBounds(instance, instance.regionLayer.getBounds(), { padding: [10, 10] });
+  }
+  nationalUpdateCaption(instance);
+}
+
+/* Nivel 2: poligonais municipais da regiao selecionada. */
+function nationalEnterRegion(instance, regionId) {
+  const { map, data } = instance;
+  instance.level = 'regiao';
+  instance.regionId = regionId;
+  [instance.regionLayer, instance.indicatedMarkers, instance.registeredMarkers].forEach(layer => {
+    if (layer && map.hasLayer(layer)) map.removeLayer(layer);
+  });
+  if (instance.municipalLayer) map.removeLayer(instance.municipalLayer);
+  if (instance.registeredLayer) map.removeLayer(instance.registeredLayer);
+
+  const daRegiao = data.features.filter(feature => nationalFeatureCode(feature).charAt(0) === regionId);
+  const canvas = window.L.canvas({ padding: .35 });
+  instance.municipalLayer = window.L.geoJSON({ type: 'FeatureCollection', features: daRegiao }, {
+    renderer: canvas,
+    style: feature => nationalStyleFor(feature, instance.filter),
+    onEachFeature: (feature, layer) => {
+      layer.bindPopup(nationalPopupFor(feature, data.metadata));
+      layer.on({
+        mouseover: () => layer.setStyle({ weight: nationalStyleFor(feature, instance.filter).weight + .8 }),
+        mouseout: () => layer.setStyle(nationalStyleFor(feature, instance.filter))
+      });
+    }
+  }).addTo(map);
+
+  const cadastrados = daRegiao.filter(feature => nationalRegisteredCodes.has(nationalFeatureCode(feature)));
+  if (cadastrados.length) {
+    const hatch = window.L.svg({ padding: .5 });
+    instance.registeredLayer = window.L.geoJSON({ type: 'FeatureCollection', features: cadastrados }, {
+      renderer: hatch,
+      style: { color: '#7f1416', weight: 2.2, opacity: 1, fillColor: 'url(#national-red-hatch)', fillOpacity: 1 },
+      onEachFeature: (feature, layer) => layer.bindPopup(nationalPopupFor(feature, data.metadata))
+    }).addTo(map);
+    installNationalHatchPattern(hatch, 'national-red-hatch');
+  }
+
+  nationalFitBounds(instance, instance.municipalLayer.getBounds(), { padding: [14, 14] });
+  if (instance.backControl) {
+    instance.backControl.style.display = 'inline-flex';
+    instance.backControl.textContent = `← Voltar ao Brasil · ${nationalRegionNames[regionId] || ''}`;
+  }
+  nationalUpdateCaption(instance);
+}
+
+function nationalUpdateCaption(instance) {
+  const caption = instance.shell?.querySelector('.public-map-caption');
+  if (!caption) return;
+  caption.classList.toggle('is-region-level', instance.level === 'regiao');
+  const nota = caption.querySelector('small');
+  if (!nota) return;
+  nota.textContent = instance.level === 'regiao'
+    ? `Malha municipal IBGE · ${nationalRegionNames[instance.regionId] || ''} · poligonal vermelha para indicados e hachura para cadastrados`
+    : 'Malha municipal IBGE · clique em uma macrorregião para abrir as poligonais municipais';
 }
 
 async function loadNationalLeafletMap(mode = 'public', defaultFilter = 'all') {
@@ -725,41 +868,48 @@ async function loadNationalLeafletMap(mode = 'public', defaultFilter = 'all') {
   shell.classList.add('is-leaflet');
   const loading = document.createElement('div');
   loading.className = 'national-map-loading';
-  loading.innerHTML = '<div><strong>Carregando poligonais municipais</strong><small>Consultando a malha oficial do IBGE para desenhar os indicados em vermelho e os demais municípios em contorno preto.</small></div>';
+  loading.innerHTML = '<div><strong>Carregando o mapa nacional</strong><small>Consultando a malha oficial do IBGE para posicionar os municípios indicados e cadastrados.</small></div>';
   host.append(loading);
-  const map = window.L.map(host, { preferCanvas: true, minZoom: 3, maxZoom: 10, zoomControl: true, attributionControl: true }).setView([-14.2, -51.9], 4);
+
+  const map = window.L.map(host, { preferCanvas: true, minZoom: 3, maxZoom: 11, zoomControl: true, attributionControl: true }).setView([-14.2, -51.9], 4);
   window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, opacity: .22, attribution: '&copy; OpenStreetMap · malha municipal IBGE' }).addTo(map);
+
   try {
     const data = await loadNationalMunicipalityData();
-    const canvasRenderer = window.L.canvas({ padding: .35 });
-    const instance = { mode, map, shell, host, data, municipalitiesLayer: null, stateLayer: null, registeredLayer: null, filter: defaultFilter };
-    instance.municipalitiesLayer = window.L.geoJSON({ type: 'FeatureCollection', features: data.features }, {
-      renderer: canvasRenderer,
-      style: feature => nationalStyleFor(feature, mode === 'public' ? nationalPendingFilter : defaultFilter),
-      onEachFeature: (feature, layer) => {
-        layer.bindPopup(nationalPopupFor(feature, data.metadata));
-        layer.on({ mouseover: event => event.target.setStyle({ weight: Math.max(nationalStyleFor(feature, instance.filter).weight + .55, 1.1) }), mouseout: event => event.target.setStyle(nationalStyleFor(feature, instance.filter)) });
-      }
-    }).addTo(map);
-    instance.stateLayer = window.L.geoJSON({ type: 'FeatureCollection', features: data.states || [] }, {
-      renderer: window.L.canvas({ padding: .35 }),
-      style: { color: '#27364b', weight: 1.35, opacity: .74, fill: false, fillOpacity: 0 },
-      interactive: false
-    }).addTo(map);
-    const registeredFeatures = data.features.filter(feature => nationalRegisteredCodes.has(nationalFeatureCode(feature)));
-    const hatchRenderer = window.L.svg({ padding: .5 });
-    instance.registeredLayer = window.L.geoJSON({ type: 'FeatureCollection', features: registeredFeatures }, {
-      renderer: hatchRenderer,
-      style: { color: '#991b1b', weight: 2.1, opacity: 1, fillColor: 'url(#national-red-hatch)', fillOpacity: .84 },
-      onEachFeature: (feature, layer) => layer.bindPopup(nationalPopupFor(feature, data.metadata))
-    }).addTo(map);
-    installNationalHatchPattern(hatchRenderer, 'national-red-hatch');
+    const instance = {
+      mode, map, shell, host, data,
+      level: 'brasil', regionId: null,
+      regionLayer: null, indicatedMarkers: null, registeredMarkers: null,
+      municipalLayer: null, registeredLayer: null,
+      filter: defaultFilter, contagemPorRegiao: {}
+    };
+
+    data.features.forEach(feature => {
+      const code = nationalFeatureCode(feature);
+      const regiao = code.charAt(0);
+      const status = nationalStatusFor(code);
+      if (status === 'other') return;
+      if (!instance.contagemPorRegiao[regiao]) instance.contagemPorRegiao[regiao] = { indicados: 0, cadastrados: 0 };
+      if (status === 'registered') instance.contagemPorRegiao[regiao].cadastrados += 1;
+      else instance.contagemPorRegiao[regiao].indicados += 1;
+    });
+
+    const voltar = document.createElement('button');
+    voltar.type = 'button';
+    voltar.className = 'national-map-back';
+    voltar.style.display = 'none';
+    voltar.addEventListener('click', () => nationalShowOverview(instance));
+    host.append(voltar);
+    instance.backControl = voltar;
+
+    nationalBuildOverview(instance);
     nationalMapInstances.set(mode, instance);
+    nationalWatchResize(instance);
     nationalMapFilterForInstance(instance, mode === 'public' ? nationalPendingFilter : defaultFilter);
-    const bounds = instance.municipalitiesLayer.getBounds();
-    if (bounds.isValid()) map.fitBounds(bounds, { padding: [12, 12], maxZoom: 5 });
+    nationalShowOverview(instance);
     loading.remove();
     map.invalidateSize();
+    setTimeout(() => map.invalidateSize(), 350);
   } catch (error) {
     console.warn('Mapa nacional Leaflet/IBGE indisponível; mantendo a prévia local.', error);
     loading.remove();
@@ -767,6 +917,83 @@ async function loadNationalLeafletMap(mode = 'public', defaultFilter = 'all') {
     showToast('A malha oficial não respondeu. A prévia local continua disponível.');
   }
 }
+
+function nationalMapFilterForInstance(instance, filter) {
+  const effectiveFilter = instance.mode === 'public' ? filter : instance.mode;
+  instance.filter = effectiveFilter;
+  if (instance.municipalLayer) {
+    instance.municipalLayer.eachLayer(layer => layer.setStyle(nationalStyleFor(layer.feature, effectiveFilter)));
+  }
+  if (instance.registeredLayer) {
+    const mostrarHachura = effectiveFilter !== 'indicated' && effectiveFilter !== 'in-progress';
+    instance.registeredLayer.setStyle({ opacity: mostrarHachura ? 1 : 0, fillOpacity: mostrarHachura ? 1 : 0 });
+  }
+  if (instance.level === 'brasil') {
+    const mostrarIndicados = effectiveFilter === 'all' || effectiveFilter === 'indicated' || effectiveFilter === 'in-progress';
+    const mostrarCadastrados = effectiveFilter === 'all' || effectiveFilter === 'registered';
+    if (instance.indicatedMarkers) {
+      if (mostrarIndicados) instance.map.addLayer(instance.indicatedMarkers);
+      else instance.map.removeLayer(instance.indicatedMarkers);
+    }
+    if (instance.registeredMarkers) {
+      if (mostrarCadastrados) instance.map.addLayer(instance.registeredMarkers);
+      else instance.map.removeLayer(instance.registeredMarkers);
+    }
+  }
+}
+
+
+
+function nationalStatusFor(code) {
+  if (nationalRegisteredCodes.has(code)) return 'registered';
+  if (nationalInProgressCodes.has(code)) return 'in-progress';
+  if (nationalIndicatedCodes.has(code)) return 'indicated';
+  return 'other';
+}
+
+function nationalRequestJson(url) {
+  return fetch(url, { mode: 'cors' }).then(response => {
+    if (!response.ok) throw new Error(`IBGE respondeu ${response.status}`);
+    return response.json();
+  });
+}
+
+
+function nationalStyleFor(feature, filter = 'all') {
+  const code = nationalFeatureCode(feature);
+  const status = nationalStatusFor(code);
+  const filteredOut = filter === 'indicated' ? status === 'other' : filter === 'registered' ? status !== 'registered' : filter === 'in-progress' ? status !== 'in-progress' : false;
+  if (filteredOut) return { color: '#c8ced5', weight: .35, opacity: .55, fillColor: '#fff', fillOpacity: 0 };
+  if (status === 'registered') return { color: '#991b1b', weight: 2.15, opacity: 1, fillColor: '#ffd8d4', fillOpacity: .58 };
+  if (status === 'indicated') return { color: '#b42318', weight: 1.55, opacity: 1, fillColor: '#fff4f2', fillOpacity: .1 };
+  if (status === 'in-progress') return { color: '#bd7520', weight: 1.7, opacity: 1, fillColor: '#fff6df', fillOpacity: .28 };
+  return { color: '#111827', weight: .58, opacity: .72, fillColor: '#fff', fillOpacity: 0 };
+}
+
+
+
+function nationalMapHostFor(mode) {
+  if (mode === 'public') return document.querySelector('#national-leaflet-map')?.closest('.public-map-canvas');
+  const shell = document.querySelector(`.national-map-shell.${mode === 'registered' ? 'registered-mode' : 'indicated-mode'}`);
+  if (!shell) return null;
+  let host = shell.querySelector('.national-leaflet-map');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = `national-leaflet-map-${mode}`;
+    host.className = 'national-leaflet-map';
+    host.setAttribute('role', 'application');
+    host.setAttribute('aria-label', mode === 'registered' ? 'Mapa Leaflet dos municípios cadastrados' : 'Mapa Leaflet dos municípios indicados');
+    shell.prepend(host);
+  }
+  return shell;
+}
+
+
+function applyNationalMapFilter(filter = 'all') {
+  nationalPendingFilter = filter;
+  nationalMapInstances.forEach(instance => nationalMapFilterForInstance(instance, filter));
+}
+
 
 function csvValue(value) {
   return `"${String(value).replace(/"/g, '""')}"`;
