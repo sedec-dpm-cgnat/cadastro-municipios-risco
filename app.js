@@ -725,8 +725,8 @@ function nationalWatchResize(instance) {
 
 function nationalRegionStyle(destaque = false) {
   return destaque
-    ? { color: '#b42318', weight: 1.9, opacity: .95, fillColor: '#f9c9c2', fillOpacity: .5 }
-    : { color: '#7d8794', weight: 1.25, opacity: .8, fillColor: '#dfe6ec', fillOpacity: .42 };
+    ? { color: '#c2410c', weight: 3.2, opacity: 1, fillColor: '#fdba74', fillOpacity: .42, dashArray: null }
+    : { color: '#ea7317', weight: 2.4, opacity: .95, fillColor: '#fed7aa', fillOpacity: .16, dashArray: null };
 }
 
 /* Nivel 1: marcadores dos municipios + macrorregioes clicaveis. */
@@ -788,6 +788,7 @@ function nationalShowOverview(instance) {
   instance.level = 'brasil';
   if (instance.municipalLayer) { instance.map.removeLayer(instance.municipalLayer); instance.municipalLayer = null; }
   if (instance.registeredLayer) { instance.map.removeLayer(instance.registeredLayer); instance.registeredLayer = null; }
+  if (instance.stateLayer) { instance.map.removeLayer(instance.stateLayer); instance.stateLayer = null; }
   [instance.regionLayer, instance.indicatedMarkers, instance.registeredMarkers].forEach(layer => {
     if (layer && !instance.map.hasLayer(layer)) instance.map.addLayer(layer);
   });
@@ -822,6 +823,16 @@ function nationalEnterRegion(instance, regionId) {
       });
     }
   }).addTo(map);
+
+  if (instance.stateLayer) map.removeLayer(instance.stateLayer);
+  const estadosDaRegiao = (data.states || []).filter(feature => nationalFeatureCode(feature).charAt(0) === regionId);
+  if (estadosDaRegiao.length) {
+    instance.stateLayer = window.L.geoJSON({ type: 'FeatureCollection', features: estadosDaRegiao }, {
+      renderer: window.L.canvas({ padding: .35 }),
+      style: { color: '#1f2937', weight: 1.9, opacity: .92, fill: false, fillOpacity: 0 },
+      interactive: false
+    }).addTo(map);
+  }
 
   const cadastrados = daRegiao.filter(feature => nationalRegisteredCodes.has(nationalFeatureCode(feature)));
   if (cadastrados.length) {
@@ -962,12 +973,17 @@ function nationalRequestJson(url) {
 function nationalStyleFor(feature, filter = 'all') {
   const code = nationalFeatureCode(feature);
   const status = nationalStatusFor(code);
-  const filteredOut = filter === 'indicated' ? status === 'other' : filter === 'registered' ? status !== 'registered' : filter === 'in-progress' ? status !== 'in-progress' : false;
-  if (filteredOut) return { color: '#c8ced5', weight: .35, opacity: .55, fillColor: '#fff', fillOpacity: 0 };
-  if (status === 'registered') return { color: '#991b1b', weight: 2.15, opacity: 1, fillColor: '#ffd8d4', fillOpacity: .58 };
-  if (status === 'indicated') return { color: '#b42318', weight: 1.55, opacity: 1, fillColor: '#fff4f2', fillOpacity: .1 };
-  if (status === 'in-progress') return { color: '#bd7520', weight: 1.7, opacity: 1, fillColor: '#fff6df', fillOpacity: .28 };
-  return { color: '#111827', weight: .58, opacity: .72, fillColor: '#fff', fillOpacity: 0 };
+  const filteredOut = filter === 'indicated' ? status === 'other'
+    : filter === 'registered' ? status !== 'registered'
+    : filter === 'in-progress' ? status !== 'in-progress'
+    : false;
+  // Nivel 2: apenas contornos, sem preenchimento (a hachura dos cadastrados
+  // vem de uma camada SVG propria, sobreposta a esta).
+  if (filteredOut) return { color: '#cbd2da', weight: .5, opacity: .5, fill: false, fillOpacity: 0 };
+  if (status === 'registered') return { color: '#7f1416', weight: 2.1, opacity: 1, fill: false, fillOpacity: 0 };
+  if (status === 'indicated') return { color: '#d92d20', weight: 1.7, opacity: 1, fill: false, fillOpacity: 0 };
+  if (status === 'in-progress') return { color: '#c2740f', weight: 1.8, opacity: 1, fill: false, fillOpacity: 0 };
+  return { color: '#3f4b5b', weight: .75, opacity: .9, fill: false, fillOpacity: 0 };
 }
 
 

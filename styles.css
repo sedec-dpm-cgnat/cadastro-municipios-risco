@@ -326,7 +326,7 @@ button { cursor: pointer; }
 .national-map-shell.is-leaflet > svg { display: none; }
 .national-map-shell.is-leaflet > .national-map-legend { display: none; }
 .registered-map-panel .map-layer-dot.national-indicated { background: #b42318; }
-.registered-map-panel .map-layer-dot.national-registered { border: 1px solid #b42318; border-radius: 3px; background: repeating-linear-gradient(135deg, #b42318 0 1px, #fff 1px 3px); }
+.registered-map-panel .map-layer-dot.national-registered { border: 1px solid #b42318; border-radius: 3px; background: repeating-linear-gradient(135deg, #991b1b 0 1.4px, #fee2e0 1.4px 3px); }
 .registered-map-panel .map-layer-dot.national-other { border: 2px solid #111827; background: #fff; }
 .national-leaflet-map { position: absolute; inset: 0; z-index: 1; display: none; overflow: hidden; background: #f6faf8; font-family: 'DM Sans', sans-serif; }
 .national-leaflet-map .leaflet-container { height: 100%; background: #f6faf8; }
@@ -342,10 +342,10 @@ button { cursor: pointer; }
 .national-leaflet-map .national-map-popup strong { color: #17233c; font-family: Manrope, sans-serif; font-size: 12px; }
 .national-leaflet-map .national-map-popup small { display: block; margin-top: 4px; color: #657184; font-size: 9px; }
 .public-map-caption { z-index: 1000; }
-.map-key.national-indicated, .legend-dot.national-indicated { color: #b42318; background: #b42318; }
-.map-key.national-registered, .legend-dot.national-registered { color: #b42318; border: 1px solid #b42318; background: repeating-linear-gradient(135deg, #b42318 0 1px, #fff 1px 3px); }
+.map-key.national-indicated, .legend-dot.national-indicated { color: #d92d20; border: 1.5px solid #d92d20; background: #fff; }
+.map-key.national-registered, .legend-dot.national-registered { color: #b42318; border: 1px solid #b42318; background: repeating-linear-gradient(135deg, #991b1b 0 1.4px, #fee2e0 1.4px 3px); }
 .map-key.national-progress, .legend-dot.national-progress { color: #c98223; background: #c98223; }
-.legend-dot.national-other { border: 1px solid #111827; background: #fff; }
+.legend-dot.national-other { border: 1px solid #3f4b5b; background: #fff; }
 .public-map-caption .legend-dot { width: 9px; height: 9px; margin-right: 0; }
 .public-map-canvas.is-leaflet .public-map-caption { border-color: rgba(255,255,255,.92); background: rgba(255,255,255,.9); }
 @media (max-width: 520px) { .public-map-canvas.is-leaflet { min-height: 300px; height: 300px; }.national-map-shell.is-leaflet { min-height: 280px; height: 280px; }.national-map-shell.is-leaflet .national-leaflet-map { height: 280px; }.national-leaflet-map .leaflet-control-zoom { margin-top: 7px; margin-left: 7px; }.public-map-caption .national-other { display: none; } }
