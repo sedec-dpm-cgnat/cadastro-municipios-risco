@@ -86,6 +86,7 @@ function openView(viewName) {
   syncNationalMapCopy();
   if (viewName === 'dashboard') window.setTimeout(() => loadDashboardSusceptibilityMap('sgb'), 90);
   if (viewName === 'transparencia') window.setTimeout(() => loadNationalLeafletMap('public', 'all'), 90);
+  if (viewName === 'transparencia') preencherSeletorDeUf();
   if (viewName === 'indicados') window.setTimeout(() => loadNationalLeafletMap('indicated', 'indicated'), 90);
   if (viewName === 'cadastrados') window.setTimeout(() => loadNationalLeafletMap('registered', 'registered'), 90);
 }
@@ -808,6 +809,35 @@ function nationalBuildOverview(instance) {
       });
     }
   }).addTo(map);
+  instance.regionLayer.bringToFront();
+
+  /* Poligonais municipais tambem no nivel 1: indicados em vermelho,
+     cadastrados hachurados e os demais em cinza. */
+  instance.overviewMunicipalLayer = window.L.geoJSON(
+    { type: 'FeatureCollection', features: data.features },
+    {
+      renderer: window.L.canvas({ padding: .3 }),
+      style: feature => {
+        const status = nationalStatusFor(nationalFeatureCode(feature));
+        if (status === 'registered') return { color: '#7f1416', weight: 1.5, opacity: 1, fill: false, fillOpacity: 0 };
+        if (status === 'indicated') return { color: '#d92d20', weight: 1.05, opacity: .95, fill: false, fillOpacity: 0 };
+        if (status === 'in-progress') return { color: '#c2740f', weight: 1.2, opacity: 1, fill: false, fillOpacity: 0 };
+        return { color: '#9aa5b1', weight: .4, opacity: .6, fill: false, fillOpacity: 0 };
+      },
+      interactive: false
+    }
+  ).addTo(map);
+
+  const cadastradosOverview = data.features.filter(f => nationalRegisteredCodes.has(nationalFeatureCode(f)));
+  if (cadastradosOverview.length) {
+    const hachura = window.L.svg({ padding: .5 });
+    instance.overviewHatchLayer = window.L.geoJSON(
+      { type: 'FeatureCollection', features: cadastradosOverview },
+      { renderer: hachura, interactive: false,
+        style: { color: '#7f1416', weight: 1.6, opacity: 1, fillColor: 'url(#national-red-hatch)', fillOpacity: 1 } }
+    ).addTo(map);
+    installNationalHatchPattern(hachura, 'national-red-hatch');
+  }
 
   const indicadosFeatures = [];
   const cadastradosFeatures = [];
@@ -846,9 +876,10 @@ function nationalShowOverview(instance) {
   if (instance.municipalLayer) { instance.map.removeLayer(instance.municipalLayer); instance.municipalLayer = null; }
   if (instance.registeredLayer) { instance.map.removeLayer(instance.registeredLayer); instance.registeredLayer = null; }
   if (instance.stateLayer) { instance.map.removeLayer(instance.stateLayer); instance.stateLayer = null; }
-  [instance.regionLayer, instance.indicatedMarkers, instance.registeredMarkers].forEach(layer => {
+  [instance.overviewMunicipalLayer, instance.overviewHatchLayer, instance.regionLayer, instance.indicatedMarkers, instance.registeredMarkers].forEach(layer => {
     if (layer && !instance.map.hasLayer(layer)) instance.map.addLayer(layer);
   });
+  if (instance.regionLayer) instance.regionLayer.bringToFront();
   if (instance.backControl) instance.backControl.style.display = 'none';
   if (instance.regionLayer) {
     nationalFitBounds(instance, instance.regionLayer.getBounds(), { padding: [10, 10] });
@@ -861,7 +892,7 @@ function nationalEnterRegion(instance, regionId) {
   const { map, data } = instance;
   instance.level = 'regiao';
   instance.regionId = regionId;
-  [instance.regionLayer, instance.indicatedMarkers, instance.registeredMarkers].forEach(layer => {
+  [instance.overviewMunicipalLayer, instance.overviewHatchLayer, instance.regionLayer, instance.indicatedMarkers, instance.registeredMarkers].forEach(layer => {
     if (layer && map.hasLayer(layer)) map.removeLayer(layer);
   });
   if (instance.municipalLayer) map.removeLayer(instance.municipalLayer);
@@ -1073,19 +1104,93 @@ function applyNationalMapFilter(filter = 'all') {
 }
 
 
+/* ===== Exportacao das listas: base completa + filtro por UF ===================
+   A tabela da tela mostra apenas um recorte demonstrativo. A exportacao usa a
+   relacao completa do IBGE cruzada com os codigos de indicacao e cadastro. */
+let cnmListaMunicipiosPromise = null;
+
+function carregarListaMunicipios() {
+  if (cnmListaMunicipiosPromise) return cnmListaMunicipiosPromise;
+  cnmListaMunicipiosPromise = nationalRequestJson('https://servicodados.ibge.gov.br/api/v1/localidades/municipios')
+    .then(lista => (Array.isArray(lista) ? lista : []).map(item => ({
+      codigo: String(item.id),
+      nome: item.nome,
+      uf: item.microrregiao?.mesorregiao?.UF?.sigla
+        || item['regiao-imediata']?.['regiao-intermediaria']?.UF?.sigla || '',
+      situacao: nationalStatusFor(String(item.id))
+    })))
+    .catch(erro => { console.warn('Relação de municípios do IBGE indisponível.', erro); return []; });
+  return cnmListaMunicipiosPromise;
+}
+
+function ufSelecionadaParaExportar() {
+  const seletor = document.querySelector('[data-download-uf]');
+  return seletor ? seletor.value : 'all';
+}
+
+function filtrarMunicipiosParaExportar(lista, categoria, uf) {
+  return lista.filter(item => {
+    if (uf !== 'all' && item.uf !== uf) return false;
+    if (categoria === 'all') return item.situacao !== 'other';
+    return item.situacao === categoria;
+  });
+}
+
+async function preencherSeletorDeUf() {
+  const seletor = document.querySelector('[data-download-uf]');
+  if (!seletor || seletor.dataset.pronto === 'sim') return;
+  const lista = await carregarListaMunicipios();
+  const ufs = [...new Set(lista.filter(m => m.situacao !== 'other').map(m => m.uf))].filter(Boolean).sort();
+  ufs.forEach(uf => {
+    const total = lista.filter(m => m.uf === uf && m.situacao !== 'other').length;
+    const opcao = document.createElement('option');
+    opcao.value = uf;
+    opcao.textContent = `${uf} · ${total} municípios`;
+    seletor.append(opcao);
+  });
+  seletor.dataset.pronto = 'sim';
+  seletor.addEventListener('change', atualizarContagensDeExportacao);
+  atualizarContagensDeExportacao();
+}
+
+async function atualizarContagensDeExportacao() {
+  const lista = await carregarListaMunicipios();
+  if (!lista.length) return;
+  const uf = ufSelecionadaParaExportar();
+  const rotulos = {
+    indicated: 'indicados', registered: 'cadastrados',
+    'in-progress': 'em procedimento', all: 'no recorte'
+  };
+  document.querySelectorAll('[data-download-count]').forEach(alvo => {
+    const categoria = alvo.dataset.downloadCount;
+    const total = filtrarMunicipiosParaExportar(lista, categoria, uf).length;
+    const escopo = uf === 'all' ? 'Brasil' : uf;
+    alvo.textContent = `${total.toLocaleString('pt-BR')} ${rotulos[categoria] || ''} · ${escopo} · CSV`;
+  });
+}
+
 function csvValue(value) {
   return `"${String(value).replace(/"/g, '""')}"`;
 }
 
-function downloadMunicipalities(category) {
-  const rows = [...document.querySelectorAll('#municipality-table tr')].filter(row => category === 'all' || row.dataset.category === category);
-  const header = ['Município', 'Código IBGE', 'UF', 'Origem', 'Pedido de inscrição', 'Manifestação municipal', 'Aprovação / anuência', 'Documentos', 'Situação'];
-  const data = rows.map(row => {
-    const cells = [...row.querySelectorAll('td')];
-    return [cells[0]?.querySelector('strong')?.textContent.trim() || '', cells[0]?.querySelector('small')?.textContent.replace('IBGE', '').trim() || '', cells[1]?.textContent.trim() || '', cells[2]?.textContent.trim() || '', cells[3]?.textContent.trim() || '', cells[4]?.textContent.trim() || '', cells[5]?.textContent.trim() || '', cells[6]?.textContent.trim() || '', cells[7]?.textContent.trim() || ''];
-  });
+async function downloadMunicipalities(category) {
+  const uf = ufSelecionadaParaExportar();
+  const lista = await carregarListaMunicipios();
+  if (!lista.length) { showToast('A relação de municípios do IBGE não respondeu. Tente novamente.'); return; }
+  const selecionados = filtrarMunicipiosParaExportar(lista, category, uf)
+    .sort((a, b) => a.uf.localeCompare(b.uf) || a.nome.localeCompare(b.nome, 'pt-BR'));
+  if (!selecionados.length) { showToast('Nenhum município nesse recorte.'); return; }
+
+  const rotuloSituacao = { indicated: 'Indicado', registered: 'Cadastrado', 'in-progress': 'Em procedimento de cadastramento' };
+  const header = ['Município', 'Código IBGE', 'UF', 'Situação'];
+  const data = selecionados.map(item => [item.nome, item.codigo, item.uf, rotuloSituacao[item.situacao] || '']);
   const csv = `\uFEFF${[header, ...data].map(line => line.map(csvValue).join(';')).join('\r\n')}`;
-  const fileName = { indicated: 'municipios-indicados-cnm-risco.csv', registered: 'municipios-cadastrados-cnm-risco.csv', all: 'recorte-cnm-risco.csv' }[category] || 'dados-cnm-risco.csv';
+
+  const sufixo = uf === 'all' ? 'brasil' : uf.toLowerCase();
+  const base = { indicated: 'municipios-indicados', registered: 'municipios-cadastrados',
+    'in-progress': 'municipios-em-procedimento', all: 'municipios-cnm-risco' }[category] || 'dados-cnm-risco';
+  const fileName = `${base}-${sufixo}.csv`;
+
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
   const link = document.createElement('a');
   link.href = url;
@@ -1094,7 +1199,7 @@ function downloadMunicipalities(category) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
-  showToast(`Download preparado: ${fileName}.`);
+  showToast(`${selecionados.length.toLocaleString('pt-BR')} municípios exportados: ${fileName}.`);
 }
 
 document.querySelectorAll('[data-download]').forEach(button => button.addEventListener('click', () => downloadMunicipalities(button.dataset.download)));

@@ -318,7 +318,7 @@ button { cursor: pointer; }
 .post-registration-lock .button { white-space: nowrap; }
 .dashboard-susceptibility-map { position: relative; }
 .dashboard-susceptibility-map 
-.public-map-canvas.is-leaflet { min-height: 390px; height: 390px; background: #f6faf8; }
+.public-map-canvas.is-leaflet { min-height: 560px; height: 560px; background: #f6faf8; }
 .public-map-canvas.is-leaflet .national-leaflet-map { display: block; }
 .national-map-shell.is-leaflet .national-leaflet-map { display: block; }
 .public-map-canvas.is-leaflet > svg, .public-map-canvas.is-leaflet .map-grid-lines { display: none; }
@@ -348,7 +348,7 @@ button { cursor: pointer; }
 .legend-dot.national-other { border: 1px solid #3f4b5b; background: #fff; }
 .public-map-caption .legend-dot { width: 9px; height: 9px; margin-right: 0; }
 .public-map-canvas.is-leaflet .public-map-caption { border-color: rgba(255,255,255,.92); background: rgba(255,255,255,.9); }
-@media (max-width: 520px) { .public-map-canvas.is-leaflet { min-height: 300px; height: 300px; }.national-map-shell.is-leaflet { min-height: 280px; height: 280px; }.national-map-shell.is-leaflet .national-leaflet-map { height: 280px; }.national-leaflet-map .leaflet-control-zoom { margin-top: 7px; margin-left: 7px; }.public-map-caption .national-other { display: none; } }
+@media (max-width: 520px) { .public-map-canvas.is-leaflet { min-height: 560px; height: 560px; }.national-map-shell.is-leaflet { min-height: 280px; height: 280px; }.national-map-shell.is-leaflet .national-leaflet-map { height: 560px; }.national-leaflet-map .leaflet-control-zoom { margin-top: 7px; margin-left: 7px; }.public-map-caption .national-other { display: none; } }
 @media (max-width: 700px) { .post-registration-lock .button { margin-left: 38px; } }
 
 /* Mapa nacional em dois niveis */
@@ -378,3 +378,11 @@ button { cursor: pointer; }
 .responsibility-selected button { border: 0; color: var(--blue); background: none; font-family: 'DM Sans', sans-serif;
   font-size: 9px; font-weight: 800; cursor: pointer; }
 .responsibility-selected button:hover { text-decoration: underline; }
+
+/* Abrangencia da exportacao */
+.download-scope { display: grid; gap: 5px; margin-bottom: 9px; }
+.download-scope span { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.download-scope select { width: 100%; min-height: 34px; padding: 0 9px; border: 1px solid #d6e1e2; border-radius: 7px;
+  outline: none; color: var(--ink); background: #fff; font-family: 'DM Sans', sans-serif; font-size: 10px; }
+.download-scope select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-soft); }
+.download-icon.amber { color: #a2620d; background: #fdf0d8; }
